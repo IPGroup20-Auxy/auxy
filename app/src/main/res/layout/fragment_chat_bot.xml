@@ -32,7 +32,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:layout_weight="33">
+                android:layout_weight="33"
+                android:id="@+id/contact_1_button">
 
                 <ImageView
                     android:layout_width="100dp"
@@ -53,7 +54,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:layout_weight="33">
+                android:layout_weight="33"
+                android:id="@+id/contact_2_button">
 
                 <ImageView
                     android:layout_width="100dp"
@@ -74,7 +76,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:layout_weight="33">
+                android:layout_weight="33"
+                android:id="@+id/contact_3_button">
 
                 <ImageView
                     android:layout_width="100dp"
@@ -96,7 +99,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:id="@+id/chat_bot_button">
 
             <ImageView
                 android:layout_width="250dp"
