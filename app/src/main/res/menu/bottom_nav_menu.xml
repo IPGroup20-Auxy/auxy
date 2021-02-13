@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/chatbot"
+        android:id="@+id/chatBotFragment"
         android:icon="@drawable/ic_baseline_phone_24"
         android:title="@string/chat_bot"/>
 
     <item
-        android:id="@+id/map"
+        android:id="@+id/mapFragment"
         android:icon="@drawable/ic_baseline_map_24"
         android:title="@string/map"/>
 
     <item
-        android:id="@+id/settings"
+        android:id="@+id/settingsFragment"
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="@string/settings"/>
 
