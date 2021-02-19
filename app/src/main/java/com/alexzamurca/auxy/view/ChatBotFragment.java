@@ -10,17 +10,21 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.alexzamurca.auxy.R;
+import com.alexzamurca.auxy.model.ChatBotProto;
 import com.google.android.material.snackbar.Snackbar;
 
 public class ChatBotFragment extends Fragment {
 
     private static final String TAG = "ChatBotFragment";
+    private ChatBotProto call;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_chat_bot, container, false);
+
+        call = new ChatBotProto(requireContext());
 
         // Set up the contact on click listeners
         initOnClickListeners(view);
@@ -41,6 +45,7 @@ public class ChatBotFragment extends Fragment {
             // Insert alternative logic instead of the below code
             Snackbar.make(view, "You want to call the Chat Bot!", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
+            call.saySomething("Kick the guy in the nuts, then run away.");
         });
 
         contact1Layout.setOnClickListener(contact1View ->
