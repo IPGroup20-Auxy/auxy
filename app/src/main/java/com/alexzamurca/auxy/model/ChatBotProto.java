@@ -1,26 +1,39 @@
 package com.alexzamurca.auxy.model;
+import android.content.Context;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
-public class ChatBotProto extends AppCompatActivity {
+public class ChatBotProto implements TextToSpeech.OnInitListener{
     protected String[] replies = {"Stay calm, keep walking briskly to show you're going somewhere", "If a potential assailant starts to get closer behind you, think about crossing the road or turning towards a busier area"};
-    private TextToSpeech textToSpeech;
+    private TextToSpeech TTS;
 
-    public void initCall() {
-        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int i) {
-                if(i!=TextToSpeech.ERROR){
-                    textToSpeech.setLanguage(Locale.UK);
-                }
+
+    public ChatBotProto(Context context) {
+        TTS = new TextToSpeech(context, this::onInit);
+    }
+
+
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            int result = TTS.setLanguage(Locale.UK);
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("error", "This Language is not supported");
             }
-        });
+        } else {
+            Log.e("error", "Failed to Initialize");
+        }
+    }
 
-        textToSpeech.speak(replies[1], TextToSpeech.QUEUE_FLUSH, null, "request1");
+    public void GetResponse(){
 
     }
 
+    public void saySomething(String text) {
+        TTS.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+    }
 }
