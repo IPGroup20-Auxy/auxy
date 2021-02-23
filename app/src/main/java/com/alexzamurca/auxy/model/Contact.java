@@ -1,5 +1,9 @@
 package com.alexzamurca.auxy.model;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+
 public class Contact
 {
     // Contact number in the hierarchy
@@ -38,8 +42,58 @@ public class Contact
         this.nickName = nickName;
     }
 
-    public void call()
-    {
+    public Integer getHierarchicalNumber() {
+        return hierarchicalNumber;
+    }
 
+    public void setHierarchicalNumber(Integer hierarchicalNumber) {
+        this.hierarchicalNumber = hierarchicalNumber;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public Boolean getUseOnlyFirstName() {
+        return useOnlyFirstName;
+    }
+
+    public void setUseOnlyFirstName(Boolean useOnlyFirstName) {
+        this.useOnlyFirstName = useOnlyFirstName;
+    }
+
+    public void call(Context context)
+    {
+        Intent callIntent = new Intent(Intent.ACTION_CALL);
+        callIntent.setData(Uri.parse("tel:" + phoneNumber));
+        context.startActivity(callIntent);
     }
 }

@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 
 import com.alexzamurca.auxy.R;
 import com.alexzamurca.auxy.model.ChatBotProto;
+import com.alexzamurca.auxy.model.Contact;
 import com.google.android.material.snackbar.Snackbar;
 
 public class ChatBotFragment extends Fragment {
