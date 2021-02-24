@@ -2,14 +2,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.MapFragment">
+    android:layout_height="match_parent">
 
-    <TextView
+    <fragment
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/map"
-        android:gravity="center"
-        android:textSize="40sp"/>
+        android:id="@+id/map"
+        tools:context=".view.MapFragment"
+        class ="com.google.android.gms.maps.SupportMapFragment"
+        />
+
+<!--    <TextView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:text="@string/map"-->
+<!--        android:gravity="center"-->
+<!--        android:textSize="40sp"/>-->
 
 </RelativeLayout>
