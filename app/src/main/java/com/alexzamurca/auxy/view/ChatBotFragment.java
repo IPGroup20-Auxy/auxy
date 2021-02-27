@@ -2,7 +2,11 @@ package com.alexzamurca.auxy.view;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,12 +15,14 @@ import android.widget.LinearLayout;
 
 import com.alexzamurca.auxy.R;
 import com.alexzamurca.auxy.model.ChatBotProto;
+import com.alexzamurca.auxy.model.Contact;
 import com.google.android.material.snackbar.Snackbar;
 
 public class ChatBotFragment extends Fragment {
 
     private static final String TAG = "ChatBotFragment";
     private ChatBotProto call;
+    private NavController mNavController;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,6 +36,12 @@ public class ChatBotFragment extends Fragment {
         initOnClickListeners(view);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mNavController = Navigation.findNavController(view);
     }
 
     private void initOnClickListeners(View view)
@@ -46,6 +58,7 @@ public class ChatBotFragment extends Fragment {
             Snackbar.make(view, "You want to call the Chat Bot!", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
             call.saySomething("Kick the guy in the nuts, then run away.");
+            mNavController.navigate(R.id.action_chatBotFragment_to_callFragment);
         });
 
         contact1Layout.setOnClickListener(contact1View ->
