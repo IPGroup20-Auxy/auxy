@@ -1,21 +1,24 @@
 package com.alexzamurca.auxy.view;
-import com.alexzamurca.auxy.R;
-
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.Fragment;
 
+import com.alexzamurca.auxy.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -43,6 +46,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         // Add a marker in Sydney and move the camera
         LatLng Bath = new LatLng(51.380001f, -2.36f);
+        //Dan's bit
+        //each polygon needs LatLng for each corner and a type to set what kind of area and so appearance
+        //so provide array of arrays of LatLng for each type maybe
+        ArrayList<ArrayList<LatLng>> dangerInput=new ArrayList();
+        ArrayList<LatLng> temp= new ArrayList<LatLng>(Arrays.asList(new LatLng[]{new LatLng(51.380001f, -2.36f), new LatLng(51.380005f, -2.37f), new LatLng(51.380505f, -2.36f)}));
+        dangerInput.add(temp);
+
+        ArrayList<Polygon> dangerZones = new ArrayList<>();
+        for (ArrayList area : dangerInput){
+            dangerZones.add(mMap.addPolygon(new PolygonOptions() .addAll(area).fillColor(0x8899ff00)));
+        }
+
+
+
         mMap.addMarker(new MarkerOptions()
                 .position(Bath)
                 .title("Marker in Bath"));
