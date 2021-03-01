@@ -38,7 +38,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         mMap = googleMap;
         // set the type of map.
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);

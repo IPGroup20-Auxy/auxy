@@ -3,6 +3,8 @@ package com.alexzamurca.auxy.view;
 import android.os.Bundle;
 
 import com.alexzamurca.auxy.R;
+import com.alexzamurca.auxy.model.Crime;
+import com.alexzamurca.auxy.model.PoliceAPI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -13,10 +15,15 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import android.util.Log;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initBottomNavigationView();
+
+        PoliceAPI papi = new PoliceAPI(getApplicationContext(), "https://data.police.uk/api/crimes-street/all-crime?lat=51.37973&lng=-2.32656&date=2019-01");
+        ArrayList<Crime> response = papi.getResponse();
     }
 
     private void initBottomNavigationView()
