@@ -57,8 +57,10 @@ public class ChatBotFragment extends Fragment {
             // Insert alternative logic instead of the below code
             Snackbar.make(view, "You want to call the Chat Bot!", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
-            call.saySomething("Kick the guy in the nuts, then run away.");
             mNavController.navigate(R.id.action_chatBotFragment_to_callFragment);
+
+            call.initCall();
+
         });
 
         contact1Layout.setOnClickListener(contact1View ->
