@@ -44,12 +44,6 @@ public class CallFragment extends Fragment {
         LinearLayout DialPad = view.findViewById(R.id.DialPad);
 
 
-        endButton.setOnClickListener(chatBotView ->
-        {
-            Log.d("Onclick", "Hello world");
-            mNavController.navigateUp();
-        });
-
     }
 
     @Override
