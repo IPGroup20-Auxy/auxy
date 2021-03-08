@@ -74,9 +74,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private LatLng myLocation;
 
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
-
-
     //private GoogleMap mMap;
 
 
