@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             requestCallPermission();
         }
 
+
         PoliceAPI papi = new PoliceAPI(getApplicationContext(), "https://data.police.uk/api/crimes-street/all-crime?lat=51.37973&lng=-2.32656&date=2019-01");
         ArrayList<Crime> response = papi.getResponse();
 

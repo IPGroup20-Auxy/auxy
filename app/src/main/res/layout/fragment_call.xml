@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0088cc">
+    android:background="#00c3e3">
 
     <Button
         android:id="@+id/EndCall"
@@ -12,7 +12,7 @@
         android:layout_height="55dp"
         android:background="@drawable/circle_button"
         android:text="End"
-        app:backgroundTint="#b3001e"
+        app:backgroundTint="#f70d1a"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -29,20 +29,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.047">
+        app:layout_constraintVertical_bias="0.045">
 
         <ImageView
             android:id="@+id/ContactProfile"
             android:layout_width="182dp"
             android:layout_height="156dp"
-            android:src="@drawable/ic_baseline_person_24" />
+            android:src="@drawable/ic_chat_bot" />
 
         <TextView
             android:id="@+id/ContactNumber"
             android:layout_width="224dp"
             android:layout_height="27dp"
             android:gravity="center"
-            android:text="+447593 638995"
+            android:text="Chat Bot"
             android:textSize="20dp" />
 
     </LinearLayout>
@@ -67,14 +67,14 @@
             <ImageView
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:src="@drawable/ic_chat_bot" />
+                android:src="@drawable/ic_baseline_person_24" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Chat bot"
-                android:textSize="20dp" />
+                android:text="Switch to Contact"
+                android:textSize="16dp" />
 
         </LinearLayout>
 
@@ -89,7 +89,7 @@
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:backgroundTint="#813333"
-                app:srcCompat="@drawable/ic_mic" />
+                app:srcCompat="@drawable/ic_baseline_mic_24" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -111,7 +111,7 @@
 
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:src="@drawable/ic_speaker_on" />
+                android:src="@drawable/ic_baseline_speaker_phone_24" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -144,7 +144,7 @@
 
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:src="@drawable/ic_danger" />
+                android:src="@drawable/ic_baseline_danger_24" />
 
             <TextView
                 android:layout_width="wrap_content"

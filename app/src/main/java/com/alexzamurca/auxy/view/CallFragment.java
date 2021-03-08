@@ -21,7 +21,9 @@ import com.google.android.material.snackbar.Snackbar;
 public class CallFragment extends Fragment {
 
     private NavController mNavController;
+
     private ChatBotProto call;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,6 +32,7 @@ public class CallFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_call, container, false);
 
         call = new ChatBotProto(requireContext());
+
 
         initOnClickListeners(view);
 
@@ -54,7 +57,13 @@ public class CallFragment extends Fragment {
             mNavController.navigateUp();
             call.endCall();
         });
+    }
 
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mNavController = Navigation.findNavController(view);
     }
 
     @Override
