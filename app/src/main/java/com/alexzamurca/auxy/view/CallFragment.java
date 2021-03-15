@@ -8,20 +8,35 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.alexzamurca.auxy.R;
+import com.alexzamurca.auxy.model.ChatBotProto;
 import com.google.android.material.snackbar.Snackbar;
 
 public class CallFragment extends Fragment {
+
+    private NavController mNavController;
+
+    private ChatBotProto call;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_call, container, false);
+        View view = inflater.inflate(R.layout.fragment_call, container, false);
+
+        call = new ChatBotProto(requireContext());
+
+
+        initOnClickListeners(view);
+
+        return view;
     }
 
     private void initOnClickListeners(View view){
@@ -39,7 +54,15 @@ public class CallFragment extends Fragment {
         endButton.setOnClickListener(chatBotView ->
         {
             Log.d("Onclick", "Hello world");
+            mNavController.navigateUp();
+            call.endCall();
         });
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mNavController = Navigation.findNavController(view);
+        call.initCall();
     }
 }
