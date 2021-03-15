@@ -253,12 +253,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // get permission for the user
         // get the current location form the fusedLocatoion sercives
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        if  (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        if  (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
         == PackageManager.PERMISSION_GRANTED){
             // user provided the permission
 
-            fusedLocationProviderClient.getLastLocation().addOnSuccessListener( getActivity(), location -> {
+            fusedLocationProviderClient.getLastLocation().addOnSuccessListener( requireActivity(), location -> {
                 // we got permission get lat and longt
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
@@ -294,7 +294,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // Request users Fine Location permission
     private void requestLocationPermission()
     {
-        ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},2);
+        requestPermissions( new String[]{Manifest.permission.ACCESS_FINE_LOCATION},2);
     }
 
 }
