@@ -33,24 +33,55 @@ public class PoliceAPI {
     protected String URL;
     private Context context;
     protected static ArrayList<Crime> crimes = new ArrayList<>();
+    private RequestListener requestListener;
 
-    public PoliceAPI(Context context, String URL){
+    public interface RequestListener
+    {
+        void onGotResponse(ArrayList<Crime> response);
+    }
+
+
+    /**
+     * Constructor using context and pre-written URL
+     * @param context Context
+     * @param URL JSON file locator
+     */
+    public PoliceAPI(RequestListener requestListener, Context context, String URL){
+        this.requestListener = requestListener;
         this.context = context;
         this.URL = URL;
     }
 
+    /**
+     * Customised URL constructor
+     * @param context Context
+     * @param year Year of interest
+     * @param month Month of interest
+     * @param lat Latitude
+     * @param lng Longitude
+     */
     public PoliceAPI(Context context, String year, String month, Double lat, Double lng) {
         this.prepend = "https://data.police.uk/api/crimes-street/all-crime?";
         this.createURL(year, month, lat, lng);
         this.context = context;
     }
 
+    /**
+     * Helper function for creating URL for specified point
+     * @param year year
+     * @param month month
+     * @param lat latitude
+     * @param lng longitude
+     */
     private void createURL(String year, String month, Double lat, Double lng){
         this.URL = prepend + "lat=" + lat + "&lng=" + lng + "&date=" + year + '-' + month;
     }
 
+    /**
+     * Send GET request for json array containing crime information
+     * @return ArrayList<Crime></>
+     */
     public ArrayList<Crime> getResponse(){
-        RequestQueue requestQueue = Volley.newRequestQueue(this.context);
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, this.URL, null, new Response.Listener<JSONArray>() {
             @Override
@@ -64,7 +95,8 @@ public class PoliceAPI {
 
                         crimes.add(c);
                     }
-                    Log.d("INNER", crimes.toString());
+
+                    requestListener.onGotResponse(crimes);
                 } catch (JSONException e){
                     e.printStackTrace();
                 }
@@ -76,12 +108,11 @@ public class PoliceAPI {
             }
         });
 
-        Log.d("OUTER", crimes.toString());
-        requestQueue.add(jsonArrayRequest);
+        RequestQueueSingleton.getInstance(this.context).addToRequestQueue(jsonArrayRequest);
         return crimes;
     }
 
-
-
-
+    public void onGotResponse(ArrayList<Crime> response){
+        Log.d("Police API", response.toString());
+    }
 }

@@ -1,6 +1,7 @@
 package com.alexzamurca.auxy.view;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,8 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.alexzamurca.auxy.R;
+import com.alexzamurca.auxy.model.Crime;
+import com.alexzamurca.auxy.model.PoliceAPI;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -17,12 +20,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
+import java.lang.reflect.GenericArrayType;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+import static android.content.ContentValues.TAG;
+
+public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceAPI.RequestListener{
 
     private GoogleMap mMap;
+    private ArrayList<Crime> PoliceAPIResponse;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -33,6 +40,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mapFragment.getMapAsync( this);
         return rootView;
     }
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -46,24 +54,30 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         // Add a marker in Sydney and move the camera
         LatLng Bath = new LatLng(51.380001f, -2.36f);
+
         //Dan's bit
         //each polygon needs LatLng for each corner and a type to set what kind of area and so appearance
         //so provide array of arrays of LatLng for each type maybe
-        ArrayList<ArrayList<LatLng>> dangerInput=new ArrayList();
+        ArrayList<ArrayList<LatLng>> dangerInput=new ArrayList<>();
         ArrayList<LatLng> temp= new ArrayList<LatLng>(Arrays.asList(new LatLng[]{new LatLng(51.380001f, -2.36f), new LatLng(51.380005f, -2.37f), new LatLng(51.380505f, -2.36f)}));
         dangerInput.add(temp);
 
+        PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), "https://data.police.uk/api/crimes-street/all-crime?lat=51.37973&lng=-2.32656&date=2019-01");
+        papi.getResponse();
         ArrayList<Polygon> dangerZones = new ArrayList<>();
         for (ArrayList area : dangerInput){
             dangerZones.add(mMap.addPolygon(new PolygonOptions() .addAll(area).fillColor(0x8899ff00)));
         }
 
-
-
         mMap.addMarker(new MarkerOptions()
                 .position(Bath)
                 .title("Marker in Bath"));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Bath, 17.0f));
+    }
+
+    @Override
+    public void onGotResponse(ArrayList<Crime> response){
+        Log.d("Map fragment API response", response.toString());
     }
 }
 
