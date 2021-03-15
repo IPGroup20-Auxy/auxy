@@ -18,7 +18,9 @@ import androidx.fragment.app.Fragment;
 
 import com.alexzamurca.auxy.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,7 +54,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
 
     private LatLng myLocation;
-
+    LocationCallback locationCallback;
 
 
     @Override
@@ -62,7 +64,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
 
         return rootView;
 
@@ -87,11 +88,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // set up all properties of locationRequest
         locationRequest = new LocationRequest();
 
-        locationRequest.setInterval(1000 * 30);
+        locationRequest.setInterval(1000 * 2);
 
-        locationRequest.setFastestInterval(1000 * 5 );
+        locationRequest.setFastestInterval(1000);
 
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // this event is triggered whenever the update interval is met.
+        locationCallback = new LocationCallback() {
+
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                // save the location
+                Location location = locationResult.getLastLocation();
+                // update the my location pointer
+                myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            }
+        };
+
 
         //Dan's bit
         //each polygon needs LatLng for each corner and a type to set what kind of area and so appearance
@@ -104,8 +120,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         for (ArrayList area : dangerInput) {
             dangerZones.add(mMap.addPolygon(new PolygonOptions().addAll(area).fillColor(0x8899ff00)));
         }
-
+        /**
+         * updates the map at set intervals 2 seconds and 1 sec
+         *
+         */
         updateGPS();
+    } // end of onMapReady method
+
+
+    private void startLocationUpdates() {
+
+        if (ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            // here to request the missing permissions, and then overriding
+            requestLocationPermission();
+            return;
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
     }
 
 
@@ -120,11 +153,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             fusedLocationProviderClient.getLastLocation().addOnSuccessListener( getActivity(), location -> {
                 // we got permission get lat and longt
-
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-//                mMap.addMarker(new MarkerOptions()
-//                                .position(myLocation));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
+                startLocationUpdates();
 
             });
             // Enables google's button which sets the camera to user's location
@@ -144,18 +175,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     updateGPS();
                 }else{
-                    Toast.makeText(getContext(),"This permission is required to unlocks important features", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "This permission is required to unlocks important features");
+                    // Issue: Toast is not showing
+//                    Toast.makeText(getContext(),"This permission is required to unlocks important features", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
-
 
     }
 
     // Request users Fine Location permission
     private void requestLocationPermission()
     {
-        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},2);
+        ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},2);
     }
 }
 
