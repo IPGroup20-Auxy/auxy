@@ -3,6 +3,7 @@ package com.alexzamurca.auxy.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -18,10 +19,13 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.alexzamurca.auxy.R;
 
@@ -66,6 +70,8 @@ import static android.content.ContentValues.TAG;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceAPI.RequestListener{
 
+    private NavController navController;
+
     // variable to check whether we are tracking locations
     boolean updateOn = false;
 
@@ -97,6 +103,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
 
 
         return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(view);
     }
 
     /**
@@ -258,10 +270,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+        Log.d(TAG, "onRequestPermissionsResult: ");
+        
         switch (requestCode) {
             case 2:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    updateGPS();
+                    // Reload fragment
+                    Log.d(TAG, "onRequestPermissionsResult: Need to reload fragment");
+                    navController.navigate(R.id.action_mapFragment_self);
                 } else {
                     Toast.makeText(getContext(), "This permission is required to unlocks important features", Toast.LENGTH_SHORT).show();
                 }
