@@ -57,6 +57,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 
+import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.lang.reflect.GenericArrayType;
@@ -293,7 +294,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
     // Request users Fine Location permission
     private void requestLocationPermission()
     {
-        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},2);
+        ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},2);
+    }
+
+    public ArrayList<LatLng> getBoundsLatLng(){
+        // get the center of the area
+        VisibleRegion bounds = mMap.getProjection().getVisibleRegion();
+        ArrayList<LatLng> corners = new ArrayList<>();
+        corners.add(bounds.farLeft);
+        corners.add(bounds.farRight);
+        corners.add(bounds.nearLeft);
+        corners.add(bounds.nearRight);
+        return corners;
+
     }
 
 
