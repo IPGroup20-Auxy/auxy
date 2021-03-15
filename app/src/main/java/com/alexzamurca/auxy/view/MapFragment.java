@@ -3,6 +3,7 @@ package com.alexzamurca.auxy.view;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -11,25 +12,33 @@ import android.util.Log;
 
 import android.content.res.Resources;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.alexzamurca.auxy.R;
 
+import com.alexzamurca.auxy.model.Crime;
+import com.alexzamurca.auxy.model.PoliceAPI;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import com.alexzamurca.auxy.model.Crime;
+import com.alexzamurca.auxy.model.PoliceAPI;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -52,13 +61,17 @@ import java.util.Iterator;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.lang.reflect.GenericArrayType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
 import static android.content.ContentValues.TAG;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+import static android.content.ContentValues.TAG;
+
+public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceAPI.RequestListener{
+
 
     // variable to check whether we are tracking locations
     boolean updateOn = false;
@@ -72,6 +85,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     // Google Map object, we are going to be interacting with to build the map
     private GoogleMap mMap;
+    private ArrayList<Crime> PoliceAPIResponse;
 
     private LatLng myLocation;
     LocationCallback locationCallback;
@@ -88,9 +102,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         mapFragment.getMapAsync(this);
 
-        return rootView;
 
-    }// end of onCreate method
+        return rootView;
+    }
+
+
 
 
     /**
@@ -185,6 +201,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // set the type of map.
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        // Add a marker in Sydney and move the camera
+        // COMMENTED OUT: LatLng Bath = new LatLng(51.380001f, -2.36f);
+
 
 
         // set up all properties of locationRequest
@@ -214,7 +233,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         //Dan's bit
         //each polygon needs LatLng for each corner and a type to set what kind of area and so appearance
         //so provide array of arrays of LatLng for each type maybe
-        ArrayList<ArrayList<LatLng>> dangerInput=new ArrayList();
+        ArrayList<ArrayList<LatLng>> dangerInput=new ArrayList<>();
         ArrayList<LatLng> temp= new ArrayList<LatLng>(Arrays.asList(new LatLng(51.380001f, -2.36f), new LatLng(51.380005f, -2.35888f), new LatLng(51.380505f, -2.36f)));
         dangerInput.add(temp);
         temp=new ArrayList<>(Arrays.asList(new LatLng(51.37907,-2.36395),new LatLng(51.37797,-2.36152),new LatLng(51.37763,-2.35604),new LatLng(51.38002, -2.35689)));
@@ -264,6 +283,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
                 startLocationUpdates();
 
+                PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), "https://data.police.uk/api/crimes-street/all-crime?lat=51.37973&lng=-2.32656&date=2019-01");
+                papi.getResponse(); // Response not used
             });
             // Enables google's button which sets the camera to user's location
             mMap.setMyLocationEnabled(true);
@@ -277,7 +298,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        switch (requestCode){
+        Log.d(TAG, "onRequestPermissionsResult: ");
+
+        switch (requestCode) {
             case 2:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     updateGPS();
@@ -288,14 +311,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
                 break;
         }
-
     }
 
+
+    @Override
+    public void onGotResponse(ArrayList<Crime> response) {
+        Log.d("Map fragment API response", response.toString());
+    }
     // Request users Fine Location permission
     private void requestLocationPermission()
     {
         requestPermissions( new String[]{Manifest.permission.ACCESS_FINE_LOCATION},2);
     }
+
 
 }
 

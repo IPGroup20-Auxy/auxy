@@ -2,6 +2,8 @@ package com.alexzamurca.auxy.view;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.alexzamurca.auxy.R;
@@ -17,6 +19,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -35,7 +38,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,19 +46,12 @@ public class MainActivity extends AppCompatActivity {
 
         initBottomNavigationView();
 
-
         if (ActivityCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "onCreate: haven't got permission to call");
             requestCallPermission();
         }
-
-
-        PoliceAPI papi = new PoliceAPI(getApplicationContext(), "https://data.police.uk/api/crimes-street/all-crime?lat=51.37973&lng=-2.32656&date=2019-01");
-        ArrayList<Crime> response = papi.getResponse();
-
     }
-
     private void initBottomNavigationView()
     {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_view);
