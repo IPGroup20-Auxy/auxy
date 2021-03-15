@@ -12,6 +12,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +30,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class PoliceAPI {
 
-    protected String prepend;
+    protected final String prepend = "https://data.police.uk/api/crimes-street/all-crime?";
     protected String URL;
     private Context context;
     protected static ArrayList<Crime> crimes = new ArrayList<>();
@@ -53,7 +54,7 @@ public class PoliceAPI {
     }
 
     /**
-     * Customised URL constructor
+     * Customised URL constructor for specified point
      * @param context Context
      * @param year Year of interest
      * @param month Month of interest
@@ -61,9 +62,27 @@ public class PoliceAPI {
      * @param lng Longitude
      */
     public PoliceAPI(Context context, String year, String month, Double lat, Double lng) {
-        this.prepend = "https://data.police.uk/api/crimes-street/all-crime?";
         this.createURL(year, month, lat, lng);
         this.context = context;
+    }
+
+    /**
+     * URL with custom area
+     * @param requestListener Interface for listening for network requests
+     * @param context application context
+     * @param locations ArrayList of locations in LatLng
+     */
+    public PoliceAPI(RequestListener requestListener, Context context, ArrayList<LatLng> locations){
+        this.requestListener = requestListener;
+        this.context = context;
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (LatLng l : locations){
+            String lString = l.toString();
+            stringBuilder.append(lString.substring(1, lString.length() - 1)).append(":");
+        }
+
+        this.URL = this.prepend + stringBuilder.toString().substring(0, stringBuilder.length() - 2);
     }
 
     /**
@@ -79,9 +98,8 @@ public class PoliceAPI {
 
     /**
      * Send GET request for json array containing crime information
-     * @return ArrayList<Crime></>
      */
-    public ArrayList<Crime> getResponse(){
+    public void getResponse(){
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, this.URL, null, new Response.Listener<JSONArray>() {
             @Override
@@ -92,7 +110,6 @@ public class PoliceAPI {
                         Crime c = new Crime(jsonObject.getString("category"),
                                 Double.valueOf(jsonObject.getJSONObject("location").getString("latitude")),
                                 Double.valueOf(jsonObject.getJSONObject("location").getString("longitude")));
-
                         crimes.add(c);
                     }
 
@@ -109,7 +126,6 @@ public class PoliceAPI {
         });
 
         RequestQueueSingleton.getInstance(this.context).addToRequestQueue(jsonArrayRequest);
-        return crimes;
     }
 
     public void onGotResponse(ArrayList<Crime> response){
