@@ -30,6 +30,8 @@ import java.util.concurrent.ExecutionException;
  */
 public class PoliceAPI {
 
+    private static final String TAG = "PoliceAPI";
+    
     protected final String prepend = "https://data.police.uk/api/crimes-street/all-crime?";
     protected String URL;
     private Context context;
@@ -73,16 +75,22 @@ public class PoliceAPI {
      * @param locations ArrayList of locations in LatLng
      */
     public PoliceAPI(RequestListener requestListener, Context context, ArrayList<LatLng> locations){
+        Log.d(TAG, "PoliceAPI: called");
         this.requestListener = requestListener;
         this.context = context;
 
         StringBuilder stringBuilder = new StringBuilder();
-        for (LatLng l : locations){
-            String lString = l.toString();
-            stringBuilder.append(lString.substring(1, lString.length() - 1)).append(":");
+        for (int i = 0; i < locations.size(); i++ )
+        {
+            LatLng currentLocation = locations.get(i);
+            stringBuilder.append(currentLocation.latitude);
+            stringBuilder.append(",");
+            stringBuilder.append(currentLocation.longitude);
+            // If not last index add semicolon
+            if(i!= (locations.size()-1)) stringBuilder.append(":");
         }
 
-        this.URL = this.prepend + stringBuilder.toString().substring(0, stringBuilder.length() - 2);
+        this.URL = this.prepend + "poly=" + stringBuilder.toString();
     }
 
     /**

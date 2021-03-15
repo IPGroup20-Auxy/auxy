@@ -277,6 +277,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         // Police api send request
         PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), getBoundsLatLng());
         papi.getResponse(); // Response not used
+
     }
 
 
@@ -382,6 +383,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         corners.add(bounds.farRight);
         corners.add(bounds.nearLeft);
         corners.add(bounds.nearRight);
+
+        Log.d(TAG, "getBoundsLatLng: FarLeft: (" + bounds.farLeft.latitude + ", " + bounds.farLeft.longitude);
+        Log.d(TAG, "getBoundsLatLng: FarRight: (" + bounds.farRight.latitude + ", " + bounds.farRight.longitude);
+        Log.d(TAG, "getBoundsLatLng: NearLeft: (" + bounds.nearLeft.latitude + ", " + bounds.nearLeft.longitude);
+        Log.d(TAG, "getBoundsLatLng: NearRight: (" + bounds.nearRight.latitude + ", " + bounds.nearRight.longitude);
+
         return corners;
 
     }
