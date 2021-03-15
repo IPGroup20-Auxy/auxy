@@ -32,7 +32,9 @@ import com.alexzamurca.auxy.R;
 import com.alexzamurca.auxy.model.Crime;
 import com.alexzamurca.auxy.model.PoliceAPI;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
 import com.alexzamurca.auxy.model.Crime;
@@ -72,7 +74,6 @@ import static android.content.ContentValues.TAG;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceAPI.RequestListener{
 
-    private NavController navController;
 
     // variable to check whether we are tracking locations
     boolean updateOn = false;
@@ -92,6 +93,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
 
     private HashMap<String, Integer> locationConcentrationMap;
 
+    LocationCallback locationCallback;
 
     //private GoogleMap mMap;
 
@@ -131,11 +133,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         return rootView;
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        navController = Navigation.findNavController(view);
-    }
+
+
 
     /**
      * Manipulates the map once available.
@@ -232,11 +231,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         // set up all properties of locationRequest
         locationRequest = new LocationRequest();
 
-        locationRequest.setInterval(1000 * 30);
+        locationRequest.setInterval(1000 * 2);
 
-        locationRequest.setFastestInterval(1000 * 5 );
+        locationRequest.setFastestInterval(1000);
 
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // this event is triggered whenever the update interval is met.
+        locationCallback = new LocationCallback() {
+
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                // save the location
+                Location location = locationResult.getLastLocation();
+                // update the my location pointer
+                myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            }
+        };
+
 
         //Dan's bit
         //each polygon needs LatLng for each corner and a type to set what kind of area and so appearance
@@ -252,6 +266,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         ArrayList<Circle> tier2Circles = drawCircleTierFixedRadius(mMap,tier2, RADIUS, "tier2");
 
         updateGPS();
+    } // end of onMapReady method
+
+
+    private void startLocationUpdates() {
+
+        if (ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            // here to request the missing permissions, and then overriding
+            requestLocationPermission();
+            return;
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
     }
 
 
@@ -259,19 +287,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         // get permission for the user
         // get the current location form the fusedLocation services
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        if  (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        if  (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
         == PackageManager.PERMISSION_GRANTED){
             // user provided the permission
 
-            fusedLocationProviderClient.getLastLocation().addOnSuccessListener( getActivity(), location -> {
+            fusedLocationProviderClient.getLastLocation().addOnSuccessListener( requireActivity(), location -> {
                 // we got permission get lat and longt
-
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-//                mMap.addMarker(new MarkerOptions()
-//                                .position(myLocation));
-
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
+                startLocationUpdates();
 
                 // Get JSONArray from Police API
 
@@ -291,15 +316,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         Log.d(TAG, "onRequestPermissionsResult: ");
-        
+
         switch (requestCode) {
             case 2:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Reload fragment
-                    Log.d(TAG, "onRequestPermissionsResult: Need to reload fragment");
-                    navController.navigate(R.id.action_mapFragment_self);
-                } else {
-                    Toast.makeText(getContext(), "This permission is required to unlocks important features", Toast.LENGTH_SHORT).show();
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    updateGPS();
+                }else{
+                    Log.d(TAG, "This permission is required to unlocks important features");
+                    // Issue: Toast is not showing
+//                    Toast.makeText(getContext(),"This permission is required to unlocks important features", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
@@ -326,7 +351,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
     // Request users Fine Location permission
     private void requestLocationPermission()
     {
-        ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},2);
+        requestPermissions( new String[]{Manifest.permission.ACCESS_FINE_LOCATION},2);
     }
 
     public ArrayList<LatLng> getBoundsLatLng(){
