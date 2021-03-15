@@ -1,10 +1,13 @@
 package com.alexzamurca.auxy.controller;
 
+import com.alexzamurca.auxy.model.Crime;
 import com.alexzamurca.auxy.model.PoliceAPI;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 // From the police API we get an array back that gives us information about the crime
 /*
@@ -39,7 +42,7 @@ import org.json.JSONObject;
  */
 public class PoliceAPIResponseHandler
 {
-    private JSONArray APIResponse;
+    private ArrayList<Crime> crimeList;
     private int numberOfCrimesInArea;
     /*
      * A solution to finding the score is to find the average crimes per our given area (e.g. we expect an average of 100 crimes for an area of 100m^2)
@@ -50,47 +53,24 @@ public class PoliceAPIResponseHandler
      */
     private int score;
 
-    public PoliceAPIResponseHandler(String response)
+    public PoliceAPIResponseHandler(ArrayList<Crime> crimeList)
     {
-        this.APIResponse = stringToJSON(response);
+        this.crimeList = crimeList
         this.numberOfCrimesInArea = findNumberOfCrimes();
-    }
-
-    private JSONArray stringToJSON(String response)
-    {
-        try
-        {
-            return new JSONArray(response);
-        }
-        catch(JSONException e)
-        {
-            return null;
-        }
     }
 
     private int findNumberOfCrimes()
     {
         int counter = 0;
-        if(APIResponse==null) return 0;
 
-        for(int i = 0; i < APIResponse.length(); i++)
+        for(Crime crime : crimeList)
         {
-            try
-            {
-                // Get the json object
-                JSONObject jsonObject = APIResponse.getJSONObject(i);
-                // Get the category
-                String category = jsonObject.getString("category");
-                // See if the category is what we care about
-                boolean isRelevantCategory = isRelevantCategory(category);
-                // If so add to the counter
-                if(isRelevantCategory) counter++;
-                // Otherwise don't do anything
-            }
-            catch(JSONException e)
-            {
-                continue;
-            }
+            // Get the category
+            String category = crime.getCategory();
+            // See if the category is what we care about
+            boolean isRelevantCategory = isRelevantCategory(category);
+            // If so add to the counter
+            if(isRelevantCategory) counter++;
         }
 
         return counter;
