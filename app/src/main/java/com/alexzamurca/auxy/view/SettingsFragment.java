@@ -34,10 +34,8 @@ public class SettingsFragment extends Fragment {
         adapter2.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinner1.setAdapter(adapter2);
 
-
         Switch locationSwitch = (Switch) v.findViewById(R.id.Location);
         boolean locationState = locationSwitch.isChecked();
-
 
         return v;
     }
