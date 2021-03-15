@@ -75,7 +75,7 @@ import static android.content.ContentValues.TAG;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceAPI.RequestListener{
 
-    private int radiusOfCircleOverlap = 10000000;
+    private int radiusOfCircleOverlap = 50;
 
     // variable to check whether we are tracking locations
     boolean updateOn = false;
@@ -92,7 +92,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
 
     private LatLng myLocation;
 
-    private HashMap<LatLng, Integer> locationConcentrationMap;
+    private HashMap<LatLng, Integer> locationConcentrationMap = new HashMap<>();
 
     LocationCallback locationCallback;
 
@@ -342,6 +342,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
             e.printStackTrace();
         }
 
+        Log.d(TAG, "onGotResponse: Length of HashMap: " + locationConcentrationMap.keySet().size());
+
         // Initialise the variables for drawing
         ArrayList<LatLng> tier0 = new ArrayList<>();
         ArrayList<LatLng> tier1 = new ArrayList<>();
@@ -352,6 +354,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         {
             TierChooser tierChooser = new TierChooser();
             int tier = tierChooser.getTier(locationConcentrationMap.get(location));
+            Log.d(TAG, "onGotResponse: Number of Crimes: " + locationConcentrationMap.get(location));
+            Log.d(TAG, "onGotResponse: Picked tier: " + tier);
             switch (tier)
             {
                 case 0:
@@ -376,9 +380,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
     }
 
     public ArrayList<LatLng> getBoundsLatLng(){
+
         // get the center of the area
         VisibleRegion bounds = mMap.getProjection().getVisibleRegion();
         ArrayList<LatLng> corners = new ArrayList<>();
+        corners.add(new LatLng(51.395284, -2.377752));
+        corners.add(new LatLng(51.395284, -2.346596));
+        corners.add(new LatLng(51.378573, -2.377752));
+        corners.add(new LatLng(51.378573, -2.346596));
+        /*
         corners.add(bounds.farLeft);
         corners.add(bounds.farRight);
         corners.add(bounds.nearLeft);
@@ -388,7 +398,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         Log.d(TAG, "getBoundsLatLng: FarRight: (" + bounds.farRight.latitude + ", " + bounds.farRight.longitude);
         Log.d(TAG, "getBoundsLatLng: NearLeft: (" + bounds.nearLeft.latitude + ", " + bounds.nearLeft.longitude);
         Log.d(TAG, "getBoundsLatLng: NearRight: (" + bounds.nearRight.latitude + ", " + bounds.nearRight.longitude);
-
+        */
         return corners;
 
     }

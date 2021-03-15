@@ -3,9 +3,9 @@ package com.alexzamurca.auxy.controller;
 public class TierChooser
 {
     // Tier Range
-    final int[] GREEN_RANGE = {0, 10};
-    final int[] YELLOW_RANGE = {11, 20};
-    final int[] RED_RANGE = {21, Integer.MAX_VALUE};
+    final int[] GREEN_RANGE = {0, 1};
+    final int[] YELLOW_RANGE = {2, 5};
+    final int[] RED_RANGE = {6, Integer.MAX_VALUE};
 
 
     /**
