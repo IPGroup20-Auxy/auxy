@@ -12,7 +12,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.Locale;
 
 public class ChatBotProto implements TextToSpeech.OnInitListener{
-    protected String[] replies = {"Stay calm, keep walking briskly to show you're going somewhere", "If a potential assailant starts to get closer behind you, think about crossing the road or turning towards a busier area"};
     private TextToSpeech TTS;
     private Ringtone r;
     private boolean callActive;
@@ -47,19 +46,23 @@ public class ChatBotProto implements TextToSpeech.OnInitListener{
         return response;
     }
 
-    public void startDialogue() throws InterruptedException {
-        while(callActive){
-            saySomething(getResponse());
-            Thread.sleep(6000);
+    private Runnable dialogueLoop = new Runnable() {
+
+        @Override
+        public void run() {
+            if(callActive){
+                saySomething(getResponse());
+                mHandler.postDelayed(dialogueLoop, 10000);
+            }
         }
-    }
+    };
 
     private Runnable stopRingtone = new Runnable() {
-
         @Override
         public void run() {
             r.stop();
             saySomething("Hello. This is Chatbot. I am here to help.");
+            mHandler.postDelayed(dialogueLoop, 4000);
         }
     };
 

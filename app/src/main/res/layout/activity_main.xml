@@ -21,6 +21,7 @@
         android:id="@+id/bottom_nav_view"
         android:layout_alignParentBottom="true"
         app:menu="@menu/bottom_nav_menu"
-        app:labelVisibilityMode="unlabeled"/>
+        app:labelVisibilityMode="unlabeled"
+        tools:ignore="MissingClass" />
 
 </RelativeLayout>

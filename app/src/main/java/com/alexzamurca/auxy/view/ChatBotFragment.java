@@ -21,7 +21,7 @@ import com.google.android.material.snackbar.Snackbar;
 public class ChatBotFragment extends Fragment {
 
     private static final String TAG = "ChatBotFragment";
-    private ChatBotProto call;
+
     private NavController mNavController;
 
     @Override
@@ -29,8 +29,6 @@ public class ChatBotFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_chat_bot, container, false);
-
-        call = new ChatBotProto(requireContext());
 
         // Set up the contact on click listeners
         initOnClickListeners(view);
@@ -57,9 +55,8 @@ public class ChatBotFragment extends Fragment {
             // Insert alternative logic instead of the below code
             Snackbar.make(view, "You want to call the Chat Bot!", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
-            mNavController.navigate(R.id.action_chatBotFragment_to_callFragment);
 
-            call.initCall();
+            mNavController.navigate(R.id.action_chatBotFragment_to_callFragment);
 
         });
 
