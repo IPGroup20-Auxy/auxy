@@ -29,6 +29,7 @@ import androidx.navigation.Navigation;
 
 import com.alexzamurca.auxy.R;
 
+import com.alexzamurca.auxy.controller.TierChooser;
 import com.alexzamurca.auxy.model.Crime;
 import com.alexzamurca.auxy.model.PoliceAPI;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -74,13 +75,13 @@ import static android.content.ContentValues.TAG;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceAPI.RequestListener{
 
+    private int radiusOfCircleOverlap = 10000000;
 
     // variable to check whether we are tracking locations
     boolean updateOn = false;
 
     // locations request is a config file for all settings related to FusedLocationProvider
     LocationRequest locationRequest;
-
 
     // Google's API for location services.
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -91,7 +92,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
 
     private LatLng myLocation;
 
-    private HashMap<String, Integer> locationConcentrationMap;
+    private HashMap<LatLng, Integer> locationConcentrationMap;
 
     LocationCallback locationCallback;
 
@@ -255,15 +256,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         //Dan's bit
         //each polygon needs LatLng for each corner and a type to set what kind of area and so appearance
         //so provide array of arrays of LatLng for each type maybe
-        int RADIUS;
-        ArrayList<LatLng> tier0;
-        ArrayList<LatLng> tier1;
-        ArrayList<LatLng> tier2;
-
-
-        ArrayList<Circle> tier0Circles = drawCircleTierFixedRadius(mMap,tier0, RADIUS, "tier0");
-        ArrayList<Circle> tier1Circles = drawCircleTierFixedRadius(mMap,tier1, RADIUS, "tier1");
-        ArrayList<Circle> tier2Circles = drawCircleTierFixedRadius(mMap,tier2, RADIUS, "tier2");
+        
 
         updateGPS();
     } // end of onMapReady method
@@ -280,6 +273,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
+
+        // Police api send request
+        PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), getBoundsLatLng());
+        papi.getResponse(); // Response not used
     }
 
 
@@ -298,10 +295,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
                 startLocationUpdates();
 
-                // Get JSONArray from Police API
-
-                PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), getBoundsLatLng());
-                papi.getResponse(); // Response not used
             });
             // Enables google's button which sets the camera to user's location
             mMap.setMyLocationEnabled(true);
@@ -334,19 +327,46 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
     @Override
     public void onGotResponse(ArrayList<Crime> response) {
         Log.d("Map fragment API response", response.toString());
+        
         try{
             for (Crime c : response){
-                String locationString = c.getLat().toString() + ',' + c.getLng().toString();
-                if (!locationConcentrationMap.containsKey(locationString)){
-                    locationConcentrationMap.put(locationString, 1);
+                LatLng location = new LatLng(c.getLat(), c.getLng());
+                if (!locationConcentrationMap.containsKey(location)){
+                    locationConcentrationMap.put(location, 1);
                 } else {
-                    locationConcentrationMap.put(locationString, locationConcentrationMap.get(locationString) + 1);
+                    locationConcentrationMap.put(location, locationConcentrationMap.get(location) + 1);
                 }
             }
         } catch (NullPointerException e){
             e.printStackTrace();
         }
 
+        // Initialise the variables for drawing
+        ArrayList<LatLng> tier0 = new ArrayList<>();
+        ArrayList<LatLng> tier1 = new ArrayList<>();
+        ArrayList<LatLng> tier2 = new ArrayList<>();
+        
+        // After location concentration map is formed
+        for(LatLng location : locationConcentrationMap.keySet())
+        {
+            TierChooser tierChooser = new TierChooser();
+            int tier = tierChooser.getTier(locationConcentrationMap.get(location));
+            switch (tier)
+            {
+                case 0:
+                    tier0.add(location);
+
+                case 1:
+                    tier1.add(location);
+
+                case 2:
+                    tier2.add(location);
+            }
+        }
+
+        ArrayList<Circle> tier0Circles = drawCircleTierFixedRadius(mMap,tier0, radiusOfCircleOverlap, "tier0");
+        ArrayList<Circle> tier1Circles = drawCircleTierFixedRadius(mMap,tier1, radiusOfCircleOverlap, "tier1");
+        ArrayList<Circle> tier2Circles = drawCircleTierFixedRadius(mMap,tier2, radiusOfCircleOverlap, "tier2");
     }
     // Request users Fine Location permission
     private void requestLocationPermission()
