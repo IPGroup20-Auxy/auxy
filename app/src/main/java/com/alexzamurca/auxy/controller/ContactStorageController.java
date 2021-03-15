@@ -20,14 +20,21 @@ public class ContactStorageController implements StorageManagement
     @Override
     public boolean add(Object object, int positionalIndex)
     {
-        // If object is not of type Contact
-        if(!(object instanceof Contact)) return false;
+        // If object is not of type Contact or is not in range 0 <= index <= 2
+        if(!(object instanceof Contact) || positionalIndex < 0 || positionalIndex > 2) return false;
+
+
         // Get contact
         Contact contactToAdd = (Contact) object;
 
         // Add logic
-        // Get
+        // Get contact at positional index
 
+        // If contact already at the position index then return false
+
+        // If contact not in position index then carry on
+
+        // Add the contact and apply changes
         return true;
     }
 

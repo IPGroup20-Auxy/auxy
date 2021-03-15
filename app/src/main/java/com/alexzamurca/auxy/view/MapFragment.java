@@ -257,7 +257,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
 
     private void updateGPS(){
         // get permission for the user
-        // get the current location form the fusedLocatoion sercives
+        // get the current location form the fusedLocation services
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         if  (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -274,7 +274,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
 
                 // Get JSONArray from Police API
-                PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), "https://data.police.uk/api/crimes-street/all-crime?lat=51.37973&lng=-2.32656&date=2019-01");
+
+                PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), getBoundsLatLng());
                 papi.getResponse(); // Response not used
             });
             // Enables google's button which sets the camera to user's location
