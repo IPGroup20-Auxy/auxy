@@ -55,6 +55,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.HashMap;
 
 
 import com.google.android.gms.maps.model.VisibleRegion;
@@ -89,8 +90,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
 
     private LatLng myLocation;
 
+    private HashMap<String, Integer> locationConcentrationMap;
+
 
     //private GoogleMap mMap;
+
+    public ArrayList<Circle> drawCircleTierFixedRadius(GoogleMap googleMap, ArrayList<LatLng> centres, int radius, String tier){
+
+        int fill;
+        int border;
+        switch (tier){
+            case "tier2":
+                fill=0x88FF0000;
+                break;
+            case "tier1":
+                fill=0x88FF8C00;
+                break;
+            case "tier0":
+                fill=0x88FFFF00;//change green
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + tier);
+        }
+        ArrayList<Circle> dangerZones =new ArrayList<Circle>();
+        for(LatLng centre: centres){
+            dangerZones.add(googleMap.addCircle(new CircleOptions() .center(centre).fillColor(fill).radius(radius).strokeWidth(0)));
+        }
+        return dangerZones;
+    }
 
 
     @Override
@@ -101,8 +128,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
-
-
         return rootView;
     }
 
@@ -117,15 +142,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera. In this case,
      * I just add a marker near Sydney, Australia.
-     */
-
-        /**
      * draws circles with appearance matching tier on the map
      * @param googleMap the map the circles are drawn on
      * @param centres each item represents the centre of a circle and will be paired with the same index of radii
      * @param radii each item represents the radius of a circle and will be paired with the same index of centres
      * @param tier indicates whether the circles should be drawn in red, orange or yellow
-     * @return
+     * @return ArrayList of Circle objects
      */
     public ArrayList<Circle> drawCircleTier(GoogleMap googleMap, ArrayList<LatLng> centres, ArrayList<Integer> radii, String tier){
         if (centres.size()!=radii.size()){
@@ -165,8 +187,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
      * @return returns the polygons drawn on the map, should further manipulation be required.
      */
     public ArrayList<Polygon> drawPolygonTier(GoogleMap googleMap, ArrayList<ArrayList<LatLng>> input, String tier){
-
-
         // add tests? invalid tier covered and other stuff type should handle
         int fill;
         int border;
@@ -221,19 +241,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         //Dan's bit
         //each polygon needs LatLng for each corner and a type to set what kind of area and so appearance
         //so provide array of arrays of LatLng for each type maybe
-        ArrayList<ArrayList<LatLng>> dangerInput=new ArrayList<>();
-        ArrayList<LatLng> temp= new ArrayList<LatLng>(Arrays.asList(new LatLng(51.380001f, -2.36f), new LatLng(51.380005f, -2.35888f), new LatLng(51.380505f, -2.36f)));
-        dangerInput.add(temp);
-        temp=new ArrayList<>(Arrays.asList(new LatLng(51.37907,-2.36395),new LatLng(51.37797,-2.36152),new LatLng(51.37763,-2.35604),new LatLng(51.38002, -2.35689)));
-        dangerInput.add(temp);
+        int RADIUS;
+        ArrayList<LatLng> tier0;
+        ArrayList<LatLng> tier1;
+        ArrayList<LatLng> tier2;
 
-        temp=new ArrayList<>(Arrays.asList(new LatLng(51.37907,-2.36395),new LatLng(51.37947,-2.36103),new LatLng(51.38107,-2.36010), new LatLng(51.38047,-2.36320)));
 
-        drawPolygonTier(mMap, new ArrayList<>(Arrays.asList(temp)),"orange");
-        ArrayList<Polygon> redPolygons = drawPolygonTier(mMap, dangerInput, "red");
-        //ArrayList<Circle> yellowCircles = drawCircleTier(mMap, new ArrayList<>(Arrays.asList(new LatLng(51.37916, -2.36231), new LatLng(51.38117,-2.35957))),new ArrayList<>(Arrays.asList(100, 200)),"yellow");
-        //ArrayList<Circle> orangeCircles = drawCircleTier(mMap, new ArrayList<>(Arrays.asList(new LatLng(51.37890,-2.35986))), new ArrayList<>(Arrays.asList(50)), "orange");
-
+        ArrayList<Circle> tier0Circles = drawCircleTierFixedRadius(mMap,tier0, RADIUS, "tier0");
+        ArrayList<Circle> tier1Circles = drawCircleTierFixedRadius(mMap,tier1, RADIUS, "tier1");
+        ArrayList<Circle> tier2Circles = drawCircleTierFixedRadius(mMap,tier2, RADIUS, "tier2");
 
         updateGPS();
     }
@@ -254,8 +270,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
 //                mMap.addMarker(new MarkerOptions()
 //                                .position(myLocation));
+
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
 
+                // Get JSONArray from Police API
                 PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), "https://data.police.uk/api/crimes-street/all-crime?lat=51.37973&lng=-2.32656&date=2019-01");
                 papi.getResponse(); // Response not used
             });
@@ -290,6 +308,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
     @Override
     public void onGotResponse(ArrayList<Crime> response) {
         Log.d("Map fragment API response", response.toString());
+        try{
+            for (Crime c : response){
+                String locationString = c.getLat().toString() + ',' + c.getLng().toString();
+                if (!locationConcentrationMap.containsKey(locationString)){
+                    locationConcentrationMap.put(locationString, 1);
+                } else {
+                    locationConcentrationMap.put(locationString, locationConcentrationMap.get(locationString) + 1);
+                }
+            }
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
     }
     // Request users Fine Location permission
     private void requestLocationPermission()
