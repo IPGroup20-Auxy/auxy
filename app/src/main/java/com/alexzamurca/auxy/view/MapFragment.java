@@ -107,10 +107,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
                 fill=0x88FF0000;
                 break;
             case "tier1":
-                fill=0x88FF8C00;
+                fill=0x88FFFF00;
                 break;
             case "tier0":
-                fill=0x88FFFF00;//change green
+                fill=0x8800FF00;//change green
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + tier);
