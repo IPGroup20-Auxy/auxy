@@ -55,7 +55,7 @@ public class PoliceAPIResponseHandler
 
     public PoliceAPIResponseHandler(ArrayList<Crime> crimeList)
     {
-        this.crimeList = crimeList
+        this.crimeList = crimeList;
         this.numberOfCrimesInArea = findNumberOfCrimes();
     }
 
