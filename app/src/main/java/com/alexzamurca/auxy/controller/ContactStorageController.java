@@ -9,10 +9,12 @@ import com.alexzamurca.auxy.model.Contact;
 public class ContactStorageController implements StorageManagement
 {
     private SharedPreferences contactSharedPreferences;
+    private SharedPreferences.Editor contactSharedPreferencesEditor;
 
     public ContactStorageController(Context context)
     {
         contactSharedPreferences = context.getSharedPreferences("Contacts", Context.MODE_PRIVATE);
+        contactSharedPreferencesEditor = contactSharedPreferences.edit();
     }
 
     @Override
@@ -24,7 +26,7 @@ public class ContactStorageController implements StorageManagement
         Contact contactToAdd = (Contact) object;
 
         // Add logic
-
+        // Get
 
         return true;
     }
