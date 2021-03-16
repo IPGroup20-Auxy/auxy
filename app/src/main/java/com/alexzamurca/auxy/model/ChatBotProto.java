@@ -49,7 +49,8 @@ public class ChatBotProto implements TextToSpeech.OnInitListener{
     private Runnable dialogueLoop = new Runnable() {
 
         @Override
-        public void run() {
+        public void run()
+        {
             if(callActive){
                 saySomething(getResponse());
                 mHandler.postDelayed(dialogueLoop, 10000);

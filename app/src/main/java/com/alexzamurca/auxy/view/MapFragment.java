@@ -88,11 +88,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
 
     // Google Map object, we are going to be interacting with to build the map
     private GoogleMap mMap;
-    private ArrayList<Crime> PoliceAPIResponse;
 
     private LatLng myLocation;
 
-    private HashMap<LatLng, Integer> locationConcentrationMap = new HashMap<>();
+    private HashMap<LatLng, Integer> locationConcentrationMap;
+
+    ArrayList<Circle> tier0Circles = null;
+    ArrayList<Circle> tier1Circles = null;
+    ArrayList<Circle> tier2Circles = null;
 
     LocationCallback locationCallback;
 
@@ -131,6 +134,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
+
+
+        // Initialise the hash map
+        locationConcentrationMap = new HashMap<>();
+
+        Log.d(TAG, "onCreateView: hashmap reinitialised, hashmap length: " + locationConcentrationMap.keySet().size());
+
         return rootView;
     }
 
@@ -256,7 +266,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         //Dan's bit
         //each polygon needs LatLng for each corner and a type to set what kind of area and so appearance
         //so provide array of arrays of LatLng for each type maybe
-        
+
 
         updateGPS();
     } // end of onMapReady method
@@ -369,10 +379,37 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
             }
         }
 
-        ArrayList<Circle> tier0Circles = drawCircleTierFixedRadius(mMap,tier0, radiusOfCircleOverlap, "tier0");
-        ArrayList<Circle> tier1Circles = drawCircleTierFixedRadius(mMap,tier1, radiusOfCircleOverlap, "tier1");
-        ArrayList<Circle> tier2Circles = drawCircleTierFixedRadius(mMap,tier2, radiusOfCircleOverlap, "tier2");
+        removeCircleDrawings();
+
+        tier0Circles = drawCircleTierFixedRadius(mMap,tier0, radiusOfCircleOverlap, "tier0");
+        tier1Circles = drawCircleTierFixedRadius(mMap,tier1, radiusOfCircleOverlap, "tier1");
+        tier2Circles = drawCircleTierFixedRadius(mMap,tier2, radiusOfCircleOverlap, "tier2");
+
+        // Reset hashmap
+        locationConcentrationMap = new HashMap<>();
     }
+
+    private void removeCircleDrawings()
+    {
+        if(tier0Circles == null || tier1Circles == null || tier2Circles == null) return;
+
+        // Tier 0
+        for (Circle circle : tier0Circles)
+        {
+            circle.remove();
+        }
+        // Tier 1
+        for (Circle circle : tier1Circles)
+        {
+            circle.remove();
+        }
+        // Tier 2
+        for (Circle circle : tier2Circles)
+        {
+            circle.remove();
+        }
+    }
+
     // Request users Fine Location permission
     private void requestLocationPermission()
     {

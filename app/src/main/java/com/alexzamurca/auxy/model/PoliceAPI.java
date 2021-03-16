@@ -113,6 +113,9 @@ public class PoliceAPI {
             @Override
             public void onResponse(JSONArray response) {
                 try{
+                    // reset arraylist
+                    crimes = new ArrayList<>();
+
                     for (int i = 0; i < response.length(); i++){
                         JSONObject jsonObject = response.getJSONObject(i);
                         Crime c = new Crime(jsonObject.getString("category"),
