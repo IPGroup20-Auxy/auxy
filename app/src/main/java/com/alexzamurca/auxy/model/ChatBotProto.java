@@ -9,6 +9,9 @@ import android.util.Log;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class ChatBotProto implements TextToSpeech.OnInitListener{
@@ -42,16 +45,20 @@ public class ChatBotProto implements TextToSpeech.OnInitListener{
     }
 
     public String getResponse(){
-        String response = "test";
+        ChatBotResponses responses = new ChatBotResponses();
+
+        responses.readFile();
+        String response = responses.getResponse();
+
         return response;
     }
 
     private Runnable dialogueLoop = new Runnable() {
-
         @Override
         public void run() {
             if(callActive){
-                saySomething(getResponse());
+
+                saySomething((getResponse()));
                 mHandler.postDelayed(dialogueLoop, 10000);
             }
         }
@@ -61,7 +68,7 @@ public class ChatBotProto implements TextToSpeech.OnInitListener{
         @Override
         public void run() {
             r.stop();
-            saySomething("Hello. This is Chatbot. I am here to help.");
+            saySomething(getResponse());
             mHandler.postDelayed(dialogueLoop, 4000);
         }
     };
