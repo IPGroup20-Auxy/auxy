@@ -49,8 +49,8 @@ public class ChatBotResponses {
     }
 
     public String getResponse(){
+        Random r = new Random();
         Log.d("responses", "working");
-        Log.d("responses", responses.get(0));
-        return responses.get(0);
+        return responses.get(r.nextInt(responses.size()));
     }
 }

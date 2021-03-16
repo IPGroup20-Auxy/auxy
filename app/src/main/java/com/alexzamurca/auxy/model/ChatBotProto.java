@@ -69,8 +69,8 @@ public class ChatBotProto implements TextToSpeech.OnInitListener{
         @Override
         public void run() {
             r.stop();
-            saySomething(getResponse());
-            mHandler.postDelayed(dialogueLoop, 4000);
+            saySomething("Hello. This is Chatbot. I am here to help.");
+            mHandler.postDelayed(dialogueLoop, 6000);
         }
     };
 
