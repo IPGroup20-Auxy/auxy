@@ -42,6 +42,15 @@ public class Contact
         this.nickName = nickName;
     }
 
+    public Contact(Integer hierarchicalNumber, String phoneNumber, String firstName, String lastName, String nickName, Boolean useOnlyFirstName) {
+        this.hierarchicalNumber = hierarchicalNumber;
+        this.phoneNumber = phoneNumber;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.nickName = nickName;
+        this.useOnlyFirstName = useOnlyFirstName;
+    }
+
     public Integer getHierarchicalNumber() {
         return hierarchicalNumber;
     }
