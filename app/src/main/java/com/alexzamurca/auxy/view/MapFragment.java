@@ -2,33 +2,15 @@ package com.alexzamurca.auxy.view;
 
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-
-import android.content.res.Resources;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 
 import com.alexzamurca.auxy.R;
-
 import com.alexzamurca.auxy.controller.TierChooser;
 import com.alexzamurca.auxy.model.Crime;
 import com.alexzamurca.auxy.model.PoliceAPI;
@@ -37,46 +19,35 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-
-import com.alexzamurca.auxy.model.Crime;
-import com.alexzamurca.auxy.model.PoliceAPI;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
-
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
-//may have repeats
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-
-import com.google.android.gms.maps.model.VisibleRegion;
-import com.google.android.gms.tasks.OnSuccessListener;
-
-import java.lang.reflect.GenericArrayType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.Executor;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 
 import static android.content.ContentValues.TAG;
 
-import static android.content.ContentValues.TAG;
+//may have repeats
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceAPI.RequestListener{
 
     private int radiusOfCircleOverlap = 50;
-
+    private Set<LatLng> created_circles = new HashSet<>();
     // variable to check whether we are tracking locations
     boolean updateOn = false;
 
@@ -120,7 +91,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         }
         ArrayList<Circle> dangerZones =new ArrayList<Circle>();
         for(LatLng centre: centres){
-            dangerZones.add(googleMap.addCircle(new CircleOptions() .center(centre).fillColor(fill).radius(radius).strokeWidth(0)));
+            if (!created_circles.contains(centre)){
+                dangerZones.add(mMap.addCircle(new CircleOptions() .center(centre).fillColor(fill).radius(radius).strokeWidth(0)));
+                created_circles.add(centre);
+                Log.d(TAG, "drawCircleTierFixedRadius: set created_circles: "+ created_circles);
+            }
         }
         return dangerZones;
     }
@@ -231,7 +206,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
 
         mMap = googleMap;
 
-
+        final float[] currentZoom = {mMap.getCameraPosition().zoom};
+        final LatLng[] currentPos = {mMap.getProjection().getVisibleRegion().nearRight};
         // set the type of map.
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         // Add a marker in Sydney and move the camera
@@ -259,18 +235,41 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
                 Location location = locationResult.getLastLocation();
                 // update the my location pointer
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
             }
         };
 
-
-        //Dan's bit
-        //each polygon needs LatLng for each corner and a type to set what kind of area and so appearance
-        //so provide array of arrays of LatLng for each type maybe
+        mMap.setOnCameraIdleListener( new GoogleMap.OnCameraIdleListener(){
+            @Override
+            public void onCameraIdle() {
+                // police pi request
+                if ( currentZoom[0] != mMap.getCameraPosition().zoom){
+                    currentZoom[0] = mMap.getCameraPosition().zoom;
+                    update_heat();
+                    Log.d(TAG, "onLocationResult: Camera Zoom Changed Update_heat");
+                }
+                // checks if the camera position has changed
+                LatLng new_pos = mMap.getProjection().getVisibleRegion().nearRight;
+                if ( currentPos[0] != new_pos){
+                    currentPos[0] = new_pos;
+                    update_heat();
+                    Log.d(TAG, "onLocationResult: Camera pos Changed Update_heat");
+                }
+            }
+        });
 
 
         updateGPS();
+
     } // end of onMapReady method
 
+
+    public void update_heat(){
+        // Police api send request
+        PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), getBoundsLatLng());
+        Log.d(TAG, "startLocationUpdates: getBoundsLatLng: ok Called " );
+        papi.getResponse(); // Response not used
+    }
 
     private void startLocationUpdates() {
 
@@ -283,10 +282,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
-
-        // Police api send request
-        PoliceAPI papi = new PoliceAPI(this, getActivity().getApplicationContext(), getBoundsLatLng());
-        papi.getResponse(); // Response not used
 
     }
 
@@ -303,10 +298,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
             fusedLocationProviderClient.getLastLocation().addOnSuccessListener( requireActivity(), location -> {
                 // we got permission get lat and longt
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
                 startLocationUpdates();
 
             });
+
             // Enables google's button which sets the camera to user's location
             mMap.setMyLocationEnabled(true);
         }else{
@@ -371,15 +367,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
                 case 0:
                     tier0.add(location);
 
+                    break;
+
                 case 1:
                     tier1.add(location);
 
+                    break;
+
                 case 2:
                     tier2.add(location);
+
+                    break;
             }
         }
 
-        removeCircleDrawings();
 
         tier0Circles = drawCircleTierFixedRadius(mMap,tier0, radiusOfCircleOverlap, "tier0");
         tier1Circles = drawCircleTierFixedRadius(mMap,tier1, radiusOfCircleOverlap, "tier1");
@@ -389,26 +390,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         locationConcentrationMap = new HashMap<>();
     }
 
-    private void removeCircleDrawings()
-    {
-        if(tier0Circles == null || tier1Circles == null || tier2Circles == null) return;
-
-        // Tier 0
-        for (Circle circle : tier0Circles)
-        {
-            circle.remove();
-        }
-        // Tier 1
-        for (Circle circle : tier1Circles)
-        {
-            circle.remove();
-        }
-        // Tier 2
-        for (Circle circle : tier2Circles)
-        {
-            circle.remove();
-        }
-    }
 
     // Request users Fine Location permission
     private void requestLocationPermission()
@@ -419,25 +400,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
     public ArrayList<LatLng> getBoundsLatLng(){
 
         // get the center of the area
-        VisibleRegion bounds = mMap.getProjection().getVisibleRegion();
+        LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
         ArrayList<LatLng> corners = new ArrayList<>();
+        /*
         corners.add(new LatLng(51.395284, -2.377752));
         corners.add(new LatLng(51.395284, -2.346596));
         corners.add(new LatLng(51.378573, -2.377752));
         corners.add(new LatLng(51.378573, -2.346596));
-        /*
-        corners.add(bounds.farLeft);
-        corners.add(bounds.farRight);
-        corners.add(bounds.nearLeft);
-        corners.add(bounds.nearRight);
-
-        Log.d(TAG, "getBoundsLatLng: FarLeft: (" + bounds.farLeft.latitude + ", " + bounds.farLeft.longitude);
-        Log.d(TAG, "getBoundsLatLng: FarRight: (" + bounds.farRight.latitude + ", " + bounds.farRight.longitude);
-        Log.d(TAG, "getBoundsLatLng: NearLeft: (" + bounds.nearLeft.latitude + ", " + bounds.nearLeft.longitude);
-        Log.d(TAG, "getBoundsLatLng: NearRight: (" + bounds.nearRight.latitude + ", " + bounds.nearRight.longitude);
         */
-        return corners;
 
+        corners.add(new LatLng(bounds.southwest.latitude, bounds.northeast.longitude));
+        corners.add(bounds.northeast);
+        corners.add(new LatLng(bounds.northeast.latitude, bounds.southwest.longitude));
+        corners.add(bounds.southwest);
+
+
+
+        Log.d(TAG, "getBoundsLatLng: NearLeft: (" + bounds.southwest.latitude + ", " +  bounds.northeast.longitude);
+        Log.d(TAG, "getBoundsLatLng: FarLeft: (" + bounds.northeast.latitude + ", " + bounds.northeast.longitude);
+        Log.d(TAG, "getBoundsLatLng: NearRight: (" + bounds.northeast.latitude + ", " + bounds.southwest.longitude);
+        Log.d(TAG, "getBoundsLatLng: FarRight: (" + bounds.southwest.latitude + ", " + bounds.southwest.latitude);
+
+        return corners;
     }
 
 
