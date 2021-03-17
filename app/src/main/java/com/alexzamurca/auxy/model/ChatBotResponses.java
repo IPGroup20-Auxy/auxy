@@ -23,16 +23,25 @@ import java.util.Scanner;
 
 public class ChatBotResponses {
     List<String> responses = new ArrayList<String>();
+    List<String> responses2 = new ArrayList<String>();
+    List<String> responses3 = new ArrayList<String>();
 
 
     public void readFile() {
         String data = "";
+        String data2 = "";
+        String data3 = "";
 
         StringBuffer buffer = new StringBuffer();
 
 
         InputStream is = MainActivity.context.getResources().openRawResource(R.raw.sample);
+        InputStream is2 = MainActivity.context.getResources().openRawResource(R.raw.sample2);
+        InputStream is3 = MainActivity.context.getResources().openRawResource(R.raw.sample3);
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        BufferedReader reader2 = new BufferedReader(new InputStreamReader(is2));
+        BufferedReader reader3 = new BufferedReader(new InputStreamReader(is3));
 
         if (is != null){
             try{
@@ -46,11 +55,62 @@ public class ChatBotResponses {
                 e.printStackTrace();
             }
         }
+
+        if (is != null){
+            try{
+                while((data2 = reader2.readLine()) != null){
+                    responses2.add(data2);
+
+                }
+                Log.d("responses", responses2.get(0));
+                is2.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (is != null){
+            try{
+                while((data3 = reader3.readLine()) != null){
+                    responses3.add(data3);
+
+                }
+                Log.d("responses", responses3.get(0));
+                is3.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public String getResponse(){
         Random r = new Random();
-        Log.d("responses", "working");
-        return responses.get(r.nextInt(responses.size()));
+        int num = r.nextInt(responses.size());
+        String response = responses.get(num);
+        responses.remove(num);
+        return response;
+    }
+
+    public String getResponse2(){
+        Random r = new Random();
+        int num = r.nextInt(responses2.size());
+        String response = responses2.get(num);
+        responses2.remove(num);
+        return response;
+    }
+
+    public String getResponse3(){
+        if(responses3.size() == 0){
+            return "I have run out of responses. Please hang up and call again.";
+        }
+        else{
+            Random r = new Random();
+            int num = r.nextInt(responses3.size());
+            String response = responses3.get(num);
+            responses3.remove(num);
+            return response;
+        }
+
     }
 }

@@ -19,12 +19,16 @@ public class ChatBotProto implements TextToSpeech.OnInitListener{
     private Ringtone r;
     private boolean callActive;
     private Handler mHandler = new Handler();
+    private int it = 0;
+    private ChatBotResponses responses;
 
 
     public ChatBotProto(Context context) {
         TTS = new TextToSpeech(context, this::onInit);
         Uri callsound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         r = RingtoneManager.getRingtone(context, callsound);
+        responses = new ChatBotResponses();
+        responses.readFile();
     }
 
 
@@ -45,11 +49,17 @@ public class ChatBotProto implements TextToSpeech.OnInitListener{
     }
 
     public String getResponse(){
-        ChatBotResponses responses = new ChatBotResponses();
-
-        responses.readFile();
-        String response = responses.getResponse();
-
+        it++;
+        String response = "";
+        if(it<5){
+            response = responses.getResponse();
+        }
+        if(it<7 && it>4){
+            response = responses.getResponse2();
+        }
+        if(it>6){
+            response = responses.getResponse3();
+        }
         return response;
     }
 
@@ -60,7 +70,7 @@ public class ChatBotProto implements TextToSpeech.OnInitListener{
             if(callActive){
 
                 saySomething((getResponse()));
-                mHandler.postDelayed(dialogueLoop, 10000);
+                mHandler.postDelayed(dialogueLoop, 15000);
             }
         }
     };
