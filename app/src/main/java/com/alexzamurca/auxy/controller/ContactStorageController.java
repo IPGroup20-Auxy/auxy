@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 
 import com.alexzamurca.auxy.model.Contact;
 
-import java.util.Set;
-
 // Class responsible for adding/removing and changing contacts that are stored
 public class ContactStorageController implements StorageManagement
 {
@@ -16,13 +14,11 @@ public class ContactStorageController implements StorageManagement
 
     private SharedPreferences contactSharedPreferences;
     private SharedPreferences.Editor contactSharedPreferencesEditor;
-    private ContactStringSetConversion contactStringSetConversion;
 
     public ContactStorageController(Context context)
     {
         contactSharedPreferences = context.getSharedPreferences("Contacts", Context.MODE_PRIVATE);
         contactSharedPreferencesEditor = contactSharedPreferences.edit();
-        contactStringSetConversion = new ContactStringSetConversion();
     }
 
     @Override
@@ -31,25 +27,21 @@ public class ContactStorageController implements StorageManagement
         // If object is not of type Contact or is not in range 0 <= index <= 2
         if(!(object instanceof Contact) || positionalIndex < 0 || positionalIndex > 2) return false;
 
-
         // Get contact
         Contact contactToAdd = (Contact) object;
 
         // Add logic
-        // Get contact at positional index
-        Set<String> contactSet = contactSharedPreferences.getStringSet("Contact#" + positionalIndex, null);
+        boolean contactAtIndex = isContactAtIndex(positionalIndex);
         // If contact already at the position index then return false
-        if(contactSet != null)
+        if(contactAtIndex)
         {
             return false;
         }
 
         // If contact not in position index then carry on
-        Set<String> setOfContactToAdd = contactStringSetConversion.contactToStringSet(contactToAdd);
-        contactSharedPreferencesEditor.putStringSet("Contact#" + positionalIndex, setOfContactToAdd);
-        contactSharedPreferencesEditor.apply();
-
         // Add the contact and apply changes
+        storeContact(contactToAdd, positionalIndex);
+        
         return true;
     }
 
@@ -57,13 +49,10 @@ public class ContactStorageController implements StorageManagement
     public Object remove(int positionalIndex)
     {
         // Get contact at index
-        Set<String> contactSet = contactSharedPreferences.getStringSet("Contact#" + positionalIndex, null);
-        if(contactSet == null) return null;
-        Contact removedContact = contactStringSetConversion.stringSetToContact(contactSet);
+        Contact removedContact = getContactAtIndex(positionalIndex);
 
         // Remove contact at the index
-        contactSharedPreferencesEditor.putStringSet("Contact#" + positionalIndex, null);
-        contactSharedPreferencesEditor.apply();
+        removeContactAtIndex(positionalIndex);
 
         return removedContact;
     }
@@ -73,17 +62,56 @@ public class ContactStorageController implements StorageManagement
         // If object is not of type Contact or is not in range 0 <= index <= 2
         if(!(object instanceof Contact) || positionalIndex < 0 || positionalIndex > 2) return false;
 
-
         // Get contact
         Contact contactToAdd = (Contact) object;
 
         // Update logic
-        Set<String> setOfContactToAdd = contactStringSetConversion.contactToStringSet(contactToAdd);
-        contactSharedPreferencesEditor.putStringSet("Contact#" + positionalIndex, setOfContactToAdd);
-        contactSharedPreferencesEditor.apply();
+        storeContact(contactToAdd, positionalIndex);
 
-        // Add the contact and apply changes
         return true;
+    }
+
+    // Checks if there is a contact at the specified index
+    public boolean isContactAtIndex(int positionalIndex)
+    {
+        // Just check hierarchical number (don't need to check all other values)
+        int hierarchicalNumber = contactSharedPreferences.getInt("Contact#"+ positionalIndex + ":hierarchicalNumber", -1);
+        // Return if not unassigned
+        return hierarchicalNumber != -1;
+    }
+
+    private void storeContact(Contact contact, int positionalIndex)
+    {
+        contactSharedPreferencesEditor.putInt("Contact#"+ positionalIndex + ":hierarchicalNumber", contact.getHierarchicalNumber());
+        contactSharedPreferencesEditor.putString("Contact#"+ positionalIndex + ":phoneNumber", contact.getPhoneNumber());
+        contactSharedPreferencesEditor.putString("Contact#"+ positionalIndex + ":firstName", contact.getFirstName());
+        contactSharedPreferencesEditor.putString("Contact#"+ positionalIndex + ":lastName", contact.getLastName());
+        contactSharedPreferencesEditor.putString("Contact#"+ positionalIndex + ":nickName", contact.getNickName());
+        contactSharedPreferencesEditor.putBoolean("Contact#"+ positionalIndex + ":useOnlyFirstName", contact.getUseOnlyFirstName());
+        contactSharedPreferencesEditor.apply();
+    }
+
+    private void removeContactAtIndex(int positionalIndex)
+    {
+        contactSharedPreferencesEditor.putInt("Contact#"+ positionalIndex + ":hierarchicalNumber", -1);
+        contactSharedPreferencesEditor.putString("Contact#"+ positionalIndex + ":phoneNumber", null);
+        contactSharedPreferencesEditor.putString("Contact#"+ positionalIndex + ":firstName", null);
+        contactSharedPreferencesEditor.putString("Contact#"+ positionalIndex + ":lastName", null);
+        contactSharedPreferencesEditor.putString("Contact#"+ positionalIndex + ":nickName", null);
+        contactSharedPreferencesEditor.putBoolean("Contact#"+ positionalIndex + ":useOnlyFirstName", false);
+        contactSharedPreferencesEditor.apply();
+    }
+    
+    public Contact getContactAtIndex(int positionalIndex)
+    {
+        int hierarchicalNumeber = contactSharedPreferences.getInt("Contact#"+ positionalIndex + ":hierarchicalNumber", -1);
+        String phoneNumber = contactSharedPreferences.getString("Contact#"+ positionalIndex + ":phoneNumber", null);
+        String firstName = contactSharedPreferences.getString("Contact#"+ positionalIndex + ":firstName", null);
+        String lastName = contactSharedPreferences.getString("Contact#"+ positionalIndex + ":lastName", null);
+        String nickName = contactSharedPreferences.getString("Contact#"+ positionalIndex + ":nickName", null);
+        Boolean useOnlyFirstName = contactSharedPreferences.getBoolean("Contact#"+ positionalIndex + ":useOnlyFirstName", false);
+
+        return new Contact(hierarchicalNumeber, phoneNumber, firstName, lastName, nickName, useOnlyFirstName);
     }
 }
 

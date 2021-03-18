@@ -19,11 +19,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alexzamurca.auxy.R;
-import com.alexzamurca.auxy.controller.ContactStringSetConversion;
+import com.alexzamurca.auxy.controller.ContactStorageController;
 import com.alexzamurca.auxy.model.Contact;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.Set;
 
 public class ChatBotFragment extends Fragment {
 
@@ -77,12 +75,11 @@ public class ChatBotFragment extends Fragment {
 
     private void initEmergencyContactVariables(int positionalIndex)
     {
-        ContactStringSetConversion contactStringSetConversion = new ContactStringSetConversion();
+        ContactStorageController contactStorageController = new ContactStorageController(requireContext());
+        boolean isContactAtIndex = contactStorageController.isContactAtIndex(positionalIndex);
 
-        // Get set at index
-        Set<String> contactStringSet = contactSharedPreferences.getStringSet("Contact#" + positionalIndex, null);
         // If no contact assigned to the specified index
-        if(contactStringSet == null)
+        if(!isContactAtIndex)
         {
             switch(positionalIndex)
             {
@@ -106,17 +103,17 @@ public class ChatBotFragment extends Fragment {
         {
             case 0:
                 contact0Assigned = true;
-                contact0 = contactStringSetConversion.stringSetToContact(contactStringSet);
+                contact0 = contactStorageController.getContactAtIndex(0);
                 break;
 
             case 1:
                 contact1Assigned = true;
-                contact1 = contactStringSetConversion.stringSetToContact(contactStringSet);
+                contact1 = contactStorageController.getContactAtIndex(1);
                 break;
 
             case 2:
                 contact2Assigned = true;
-                contact2 = contactStringSetConversion.stringSetToContact(contactStringSet);
+                contact2 = contactStorageController.getContactAtIndex(2);
                 break;
         }
 
@@ -219,7 +216,7 @@ public class ChatBotFragment extends Fragment {
             if(contact0Assigned)
             {
                 // Insert alternative logic instead of the below code
-                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact0) + "on number: " + contact0.getPhoneNumber(), Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact0) + " on number: " + contact0.getPhoneNumber(), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
             else
@@ -238,7 +235,7 @@ public class ChatBotFragment extends Fragment {
             if(contact1Assigned)
             {
                 // Insert alternative logic instead of the below code
-                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact1) + "on number: " + contact1.getPhoneNumber(), Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact1) + " on number: " + contact1.getPhoneNumber(), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
             else
@@ -256,7 +253,7 @@ public class ChatBotFragment extends Fragment {
             if(contact2Assigned)
             {
                 // Insert alternative logic instead of the below code
-                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact2) + "on number: " + contact2.getPhoneNumber(), Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact2) + " on number: " + contact2.getPhoneNumber(), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
             else
