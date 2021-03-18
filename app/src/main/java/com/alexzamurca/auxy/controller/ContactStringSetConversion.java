@@ -1,13 +1,17 @@
 package com.alexzamurca.auxy.controller;
 
+import android.util.Log;
+
 import com.alexzamurca.auxy.model.Contact;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ContactStringSetConversion
 {
+    private static final String TAG = "ContactStringSetConvers";
     /*
         Order:
         0: Integer hierarchicalNumber
@@ -29,13 +33,17 @@ public class ContactStringSetConversion
         list.add(contact.getNickName());
         list.add(Boolean.toString(contact.getUseOnlyFirstName()));
 
-        return new HashSet<>(list);
+        Log.d(TAG, "contactToStringSet: list: " + list.toString());
+        Set<String> set = new LinkedHashSet<>(list);
+        Log.d(TAG, "contactToStringSet: set: " + set.toString());
+        return set;
     }
 
     public Contact stringSetToContact(Set<String> stringSet)
     {
-        ArrayList<String> list = new ArrayList<>(stringSet);
 
+        ArrayList<String> list = new ArrayList<>(stringSet);
+        Log.d(TAG, "stringSetToContact: " + list.toString());
         return new Contact(Integer.parseInt(list.get(0)), list.get(1), list.get(2), list.get(3), list.get(4), Boolean.parseBoolean(list.get(5)));
     }
 }

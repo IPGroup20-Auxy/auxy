@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -19,7 +20,6 @@ import android.widget.TextView;
 
 import com.alexzamurca.auxy.R;
 import com.alexzamurca.auxy.controller.ContactStringSetConversion;
-import com.alexzamurca.auxy.model.ChatBotProto;
 import com.alexzamurca.auxy.model.Contact;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -30,6 +30,7 @@ public class ChatBotFragment extends Fragment {
     private static final String TAG = "ChatBotFragment";
 
     private NavController mNavController;
+    private FragmentActivity fragmentActivity;
     private SharedPreferences contactSharedPreferences;
     private boolean contact0Assigned;
     private Contact contact0 = null;
@@ -57,6 +58,12 @@ public class ChatBotFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mNavController = Navigation.findNavController(view);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        fragmentActivity = (FragmentActivity)context;
     }
 
     private void initEmergencyContactsView(View view)
@@ -209,23 +216,57 @@ public class ChatBotFragment extends Fragment {
 
         contact0Layout.setOnClickListener(contact1View ->
         {
-            // Insert alternative logic instead of the below code
-            Snackbar.make(view, "You want to call Contact#0!", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+            if(contact0Assigned)
+            {
+                // Insert alternative logic instead of the below code
+                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact0) + "on number: " + contact0.getPhoneNumber(), Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+            else
+            {
+                AddContactFragment dialogAddFragment = new AddContactFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt("positionalIndex", 0);
+                dialogAddFragment.setArguments(bundle);
+                dialogAddFragment.show(fragmentActivity.getSupportFragmentManager(), "dialog_add_fragment");
+            }
+
         });
 
         contact1Layout.setOnClickListener(contact2View ->
         {
-            // Insert alternative logic instead of the below code
-            Snackbar.make(view, "You want to call Contact#1!", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+            if(contact1Assigned)
+            {
+                // Insert alternative logic instead of the below code
+                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact1) + "on number: " + contact1.getPhoneNumber(), Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+            else
+            {
+                AddContactFragment dialogAddFragment = new AddContactFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt("positionalIndex", 1);
+                dialogAddFragment.setArguments(bundle);
+                dialogAddFragment.show(fragmentActivity.getSupportFragmentManager(), "dialog_add_fragment");
+            }
         });
 
         contact2Layout.setOnClickListener(contact3View ->
         {
-            // Insert alternative logic instead of the below code
-            Snackbar.make(view, "You want to call Contact#2!", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+            if(contact2Assigned)
+            {
+                // Insert alternative logic instead of the below code
+                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact2) + "on number: " + contact2.getPhoneNumber(), Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+            else
+            {
+                AddContactFragment dialogAddFragment = new AddContactFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt("positionalIndex", 2);
+                dialogAddFragment.setArguments(bundle);
+                dialogAddFragment.show(fragmentActivity.getSupportFragmentManager(), "dialog_add_fragment");
+            }
         });
 
     }
