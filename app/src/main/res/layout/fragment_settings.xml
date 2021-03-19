@@ -82,14 +82,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.145" />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="89dp"
-        android:layout_height="56dp"
-        app:srcCompat="@drawable/ic_baseline_settings_24"
-        tools:layout_editor_absoluteX="336dp"
-        tools:layout_editor_absoluteY="1dp"
-        tools:ignore="MissingConstraints" />
+
 
 
     <Switch
@@ -262,7 +255,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.666" />
 
-
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="51dp"
+        android:layout_height="53dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.991"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.005"
+        app:srcCompat="@drawable/ic_baseline_settings_24" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

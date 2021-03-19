@@ -26,6 +26,8 @@ public class ChatBotResponses {
     List<String> responses2 = new ArrayList<String>();
     List<String> responses3 = new ArrayList<String>();
 
+    List<String> tips= new ArrayList<>();
+
 
     public void readFile() {
         String data = "";
@@ -112,5 +114,32 @@ public class ChatBotResponses {
             return response;
         }
 
+    }
+
+
+
+
+    public void readTips(){
+        String data = "";
+        StringBuffer buffer = new StringBuffer();
+        InputStream tipis = MainActivity.context.getResources().openRawResource(R.raw.tips);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(tipis));
+
+        if (tipis != null){
+            try{
+                while((data = reader.readLine()) != null){
+                    tips.add(data);
+                    Log.d("responses", data);
+                }
+                tipis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String getTip(int i){
+        Log.d("ghe", String.valueOf(i));
+        return tips.get(i);
     }
 }

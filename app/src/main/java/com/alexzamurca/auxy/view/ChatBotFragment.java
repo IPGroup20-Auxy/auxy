@@ -11,17 +11,22 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alexzamurca.auxy.R;
 import com.alexzamurca.auxy.controller.ContactStorageController;
+import com.alexzamurca.auxy.model.ChatBotResponses;
 import com.alexzamurca.auxy.model.Contact;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Random;
 
 public class ChatBotFragment extends Fragment {
 
@@ -36,6 +41,8 @@ public class ChatBotFragment extends Fragment {
     private Contact contact1 = null;
     private boolean contact2Assigned;
     private Contact contact2 = null;
+
+    private int tipNumber = 1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -265,6 +272,32 @@ public class ChatBotFragment extends Fragment {
                 dialogAddFragment.show(fragmentActivity.getSupportFragmentManager(), "dialog_add_fragment");
             }
         });
+
+        startTips(view);
+
+    }
+    public void startTips(View view){
+        Random r = new Random();
+        ChatBotResponses responses = new ChatBotResponses();
+
+
+        responses.readTips();
+        Button tipsButton = view.findViewById(R.id.nextTip);
+        TextView message = view.findViewById(R.id.TipsText);
+
+        tipsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String d = responses.getTip(tipNumber);
+                message.setText(d);
+                tipNumber++;
+                if (tipNumber == 16){
+                    tipNumber = 0;
+                }
+                Log.d("TAG", d);
+            }
+        });
+
 
     }
 }

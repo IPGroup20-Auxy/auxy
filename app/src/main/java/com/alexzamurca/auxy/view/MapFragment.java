@@ -35,10 +35,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.zip.Inflater;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import static android.content.ContentValues.TAG;
 
@@ -73,31 +75,61 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
     //private GoogleMap mMap;
 
     public ArrayList<Circle> drawCircleTierFixedRadius(GoogleMap googleMap, ArrayList<LatLng> centres, int radius, String tier){
+        boolean colourBlindState = SettingsFragment.colourBlindState;
+        Log.d("Blind", String.valueOf(colourBlindState));
 
         int fill;
         int border;
-        switch (tier){
-            case "tier2":
-                fill=0x88FF0000;
-                break;
-            case "tier1":
-                fill=0x88FFFF00;
-                break;
-            case "tier0":
-                fill=0x8800FF00;//change green
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + tier);
-        }
-        ArrayList<Circle> dangerZones =new ArrayList<Circle>();
-        for(LatLng centre: centres){
-            if (!created_circles.contains(centre)){
-                dangerZones.add(mMap.addCircle(new CircleOptions() .center(centre).fillColor(fill).radius(radius).strokeWidth(0)));
-                created_circles.add(centre);
-                Log.d(TAG, "drawCircleTierFixedRadius: set created_circles: "+ created_circles);
+        
+        if (!colourBlindState) {
+            switch (tier) {
+                case "tier2":
+                    fill = MainActivity.context.getResources().getColor(R.color.tier2_colour);
+                    break;
+                case "tier1":
+                    fill = MainActivity.context.getResources().getColor(R.color.tier1_colour);
+                    break;
+                case "tier0":
+                    fill = MainActivity.context.getResources().getColor(R.color.tier0_colour);//change green
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + tier);
             }
+            ArrayList<Circle> dangerZones = new ArrayList<Circle>();
+            for (LatLng centre : centres) {
+                if (!created_circles.contains(centre)) {
+                    dangerZones.add(mMap.addCircle(new CircleOptions().center(centre).fillColor(fill).radius(radius).strokeWidth(0)));
+                    created_circles.add(centre);
+                    Log.d(TAG, "drawCircleTierFixedRadius: set created_circles: " + created_circles);
+                }
+            }
+            return dangerZones;
         }
-        return dangerZones;
+        else{
+            switch (tier) {
+                case "tier2":
+                    fill = MainActivity.context.getResources().getColor(R.color.tier0_colourBlind);
+                    break;
+                case "tier1":
+                    fill = MainActivity.context.getResources().getColor(R.color.tier1_colourBlind);
+                    break;
+                case "tier0":
+                    fill = MainActivity.context.getResources().getColor(R.color.tier2_colourBlind);//change green
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + tier);
+            }
+            ArrayList<Circle> dangerZones = new ArrayList<Circle>();
+            for (LatLng centre : centres) {
+                if (!created_circles.contains(centre)) {
+                    dangerZones.add(mMap.addCircle(new CircleOptions().center(centre).fillColor(fill).radius(radius).strokeWidth(0)));
+                    created_circles.add(centre);
+                    Log.d(TAG, "drawCircleTierFixedRadius: set created_circles: " + created_circles);
+                }
+            }
+            return dangerZones;
+        }
+
     }
 
 
