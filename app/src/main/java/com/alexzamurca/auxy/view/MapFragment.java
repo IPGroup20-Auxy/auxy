@@ -14,6 +14,8 @@ import com.alexzamurca.auxy.R;
 import com.alexzamurca.auxy.controller.TierChooser;
 import com.alexzamurca.auxy.model.Crime;
 import com.alexzamurca.auxy.model.PoliceAPI;
+
+import com.alexzamurca.auxy.model.auxyFile;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -35,18 +37,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.zip.Inflater;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import static android.content.ContentValues.TAG;
 
 //may have repeats
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceAPI.RequestListener{
+public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceAPI.RequestListener {
 
     private int radiusOfCircleOverlap = 50;
     private Set<LatLng> created_circles = new HashSet<>();
@@ -72,7 +72,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
 
     LocationCallback locationCallback;
 
-    //private GoogleMap mMap;
+    // calling the Auxy files class
+    auxyFile aF = new auxyFile();
 
     public ArrayList<Circle> drawCircleTierFixedRadius(GoogleMap googleMap, ArrayList<LatLng> centres, int radius, String tier){
         boolean colourBlindState = SettingsFragment.colourBlindState;
@@ -233,8 +234,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
     }
 
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
 
         mMap = googleMap;
 
@@ -250,9 +253,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         // set up all properties of locationRequest
         locationRequest = new LocationRequest();
 
-        locationRequest.setInterval(1000 * 2);
+        locationRequest.setInterval(1000 * 20);
 
-        locationRequest.setFastestInterval(1000);
+        locationRequest.setFastestInterval(1000 * 5);
 
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -266,26 +269,37 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
                 // save the location
                 Location location = locationResult.getLastLocation();
                 // update the my location pointer
-                myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                LatLng new_pos = new LatLng(location.getLatitude(), location.getLongitude());
+//                check if user has significant change in location
+                if ( Math.abs(myLocation.latitude - new_pos.latitude) > 0.001f
+                        || Math.abs(myLocation.longitude - new_pos.longitude) > 0.001f ){
+                    myLocation = new_pos;
+                    // write to File "current_location"
+                    aF.aWrite(myLocation.toString());
 
+                    Log.d(TAG, "onLocationResult: Camera pos Changed Update_heat");
+                }
             }
         };
 
         mMap.setOnCameraIdleListener( new GoogleMap.OnCameraIdleListener(){
             @Override
             public void onCameraIdle() {
-                // police pi request
-                if ( currentZoom[0] != mMap.getCameraPosition().zoom){
-                    currentZoom[0] = mMap.getCameraPosition().zoom;
-                    update_heat();
-                    Log.d(TAG, "onLocationResult: Camera Zoom Changed Update_heat");
-                }
-                // checks if the camera position has changed
-                LatLng new_pos = mMap.getProjection().getVisibleRegion().nearRight;
-                if ( currentPos[0] != new_pos){
-                    currentPos[0] = new_pos;
-                    update_heat();
-                    Log.d(TAG, "onLocationResult: Camera pos Changed Update_heat");
+                // If the zoom level is too big we dont draw the circles
+                if (mMap.getCameraPosition().zoom > 16f){
+                    // police pi request
+                    if ( currentZoom[0] != mMap.getCameraPosition().zoom){
+                        currentZoom[0] = mMap.getCameraPosition().zoom;
+                        update_heat();
+                        Log.d(TAG, "onLocationResult: Camera Zoom Changed Update_heat");
+                    }
+                    // checks if the camera position has changed
+                    LatLng new_pos = mMap.getProjection().getVisibleRegion().nearRight;
+                    if ( currentPos[0] != new_pos){
+                        currentPos[0] = new_pos;
+                        update_heat();
+                        Log.d(TAG, "onLocationResult: Camera pos Changed Update_heat");
+                    }
                 }
             }
         });
@@ -294,7 +308,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         updateGPS();
 
     } // end of onMapReady method
-
 
     public void update_heat(){
         // Police api send request
@@ -308,7 +321,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         if (ActivityCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
             // here to request the missing permissions, and then overriding
             requestLocationPermission();
             return;
@@ -330,6 +342,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
             fusedLocationProviderClient.getLastLocation().addOnSuccessListener( requireActivity(), location -> {
                 // we got permission get lat and longt
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                // write to File "current_location"
+                aF.aWrite(myLocation.toString());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17.0f));
                 startLocationUpdates();
 

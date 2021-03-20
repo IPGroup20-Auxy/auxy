@@ -7,11 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="tier0_colour">#88FF0000</color>
-    <color name="tier1_colour">#FFFF00</color>
-    <color name="tier2_colour">#00ff00</color>
+    <color name="tier0_colour">#4400ff00</color>
+    <color name="tier1_colour">#44FFFF00</color>
+    <color name="tier2_colour">#44FF0000</color>
 
-    <color name="tier0_colourBlind">#FF03DAC5</color>
-    <color name="tier1_colourBlind">#FFFF00</color>
-    <color name="tier2_colourBlind">#FFBB86FC</color>
+    <color name="tier0_colourBlind">#44BB86FC</color>
+    <color name="tier1_colourBlind">#44FFFF00</color>
+    <color name="tier2_colourBlind">#4403DAC5</color>
 </resources>
