@@ -291,7 +291,7 @@ public class ChatBotFragment extends Fragment {
                 String d = responses.getTip(tipNumber);
                 message.setText(d);
                 tipNumber++;
-                if (tipNumber == 16){
+                if (tipNumber == 17){
                     tipNumber = 0;
                 }
                 Log.d("TAG", d);
