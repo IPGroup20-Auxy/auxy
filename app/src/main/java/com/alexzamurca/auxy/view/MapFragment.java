@@ -108,13 +108,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, PoliceA
         }
         else{
             switch (tier) {
-                case "tier2":
+                case "tier0":
                     fill = MainActivity.context.getResources().getColor(R.color.tier0_colourBlind);
                     break;
                 case "tier1":
                     fill = MainActivity.context.getResources().getColor(R.color.tier1_colourBlind);
                     break;
-                case "tier0":
+                case "tier2":
                     fill = MainActivity.context.getResources().getColor(R.color.tier2_colourBlind);//change green
                     break;
                 default:
