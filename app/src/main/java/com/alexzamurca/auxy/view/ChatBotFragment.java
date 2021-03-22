@@ -222,9 +222,7 @@ public class ChatBotFragment extends Fragment {
         {
             if(contact0Assigned)
             {
-                // Insert alternative logic instead of the below code
-                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact0) + " on number: " + contact0.getPhoneNumber(), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                contact0.call(requireContext());
             }
             else
             {
@@ -241,9 +239,7 @@ public class ChatBotFragment extends Fragment {
         {
             if(contact1Assigned)
             {
-                // Insert alternative logic instead of the below code
-                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact1) + " on number: " + contact1.getPhoneNumber(), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                contact1.call(requireContext());
             }
             else
             {
@@ -259,9 +255,7 @@ public class ChatBotFragment extends Fragment {
         {
             if(contact2Assigned)
             {
-                // Insert alternative logic instead of the below code
-                Snackbar.make(view, "You want to call " + getDisplayNameFromContact(contact2) + " on number: " + contact2.getPhoneNumber(), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                contact2.call(requireContext());
             }
             else
             {
