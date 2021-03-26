@@ -99,6 +99,7 @@ public class Contact
         this.useOnlyFirstName = useOnlyFirstName;
     }
 
+    // Starts a call activity to make a call
     public void call(Context context)
     {
         Intent callIntent = new Intent(Intent.ACTION_CALL);

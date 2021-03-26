@@ -43,6 +43,7 @@ public class AddContactFragment extends DialogFragment
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.dialog_add_contact, container, false);
 
+        // We expect this fragment to be called with arguments attached that indicate what index the added contact corresponds to
         Bundle args = getArguments();
         if(args!=null)
         {
@@ -53,12 +54,14 @@ public class AddContactFragment extends DialogFragment
             Log.d(TAG, "onCreateView: argument is null");
         }
 
+        // Top right close button to help user cancel the addition
         ImageView closeButton = view.findViewById(R.id.close_button);
         closeButton.setOnClickListener( view1 ->
         {
             requireDialog().dismiss();
         });
 
+        // Using edit boxes so users can input text and change it
         EditText firstNameEditText = view.findViewById(R.id.first_name_edit_box);
         firstNameEditText.addTextChangedListener(new TextWatcher() {
             @Override

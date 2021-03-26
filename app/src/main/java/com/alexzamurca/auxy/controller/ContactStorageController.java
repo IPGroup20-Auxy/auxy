@@ -80,6 +80,7 @@ public class ContactStorageController implements StorageManagement
         return hierarchicalNumber != -1;
     }
 
+    // Put Variables in the shared preferences in the contact format
     private void storeContact(Contact contact, int positionalIndex)
     {
         contactSharedPreferencesEditor.putInt("Contact#"+ positionalIndex + ":hierarchicalNumber", contact.getHierarchicalNumber());
@@ -91,6 +92,7 @@ public class ContactStorageController implements StorageManagement
         contactSharedPreferencesEditor.apply();
     }
 
+    // Put empty values in the shared preferences in the contact format, equivalent of removing
     private void removeContactAtIndex(int positionalIndex)
     {
         contactSharedPreferencesEditor.putInt("Contact#"+ positionalIndex + ":hierarchicalNumber", -1);
@@ -101,7 +103,8 @@ public class ContactStorageController implements StorageManagement
         contactSharedPreferencesEditor.putBoolean("Contact#"+ positionalIndex + ":useOnlyFirstName", false);
         contactSharedPreferencesEditor.apply();
     }
-    
+
+    // Read values in the shared preferences in the contact format
     public Contact getContactAtIndex(int positionalIndex)
     {
         int hierarchicalNumeber = contactSharedPreferences.getInt("Contact#"+ positionalIndex + ":hierarchicalNumber", -1);

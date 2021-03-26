@@ -1,5 +1,6 @@
 package com.alexzamurca.auxy.controller;
 
+// Interface with the basic actions for storage management
 public interface StorageManagement
 {
     boolean add(Object object, int positionalIndex);

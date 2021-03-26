@@ -34,7 +34,8 @@ public class ChatBotFragment extends Fragment {
 
     private NavController mNavController;
     private FragmentActivity fragmentActivity;
-    private SharedPreferences contactSharedPreferences;
+
+    // the variables used to display the contacts in the UI
     private boolean contact0Assigned;
     private Contact contact0 = null;
     private boolean contact1Assigned;
@@ -50,7 +51,6 @@ public class ChatBotFragment extends Fragment {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_chat_bot, container, false);
 
-        contactSharedPreferences = requireContext().getSharedPreferences("Contacts", Context.MODE_PRIVATE);
         initEmergencyContactsView(view);
 
         // Set up the contact on click listeners
@@ -62,6 +62,7 @@ public class ChatBotFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        // We need the nav controller to move between fragments
         mNavController = Navigation.findNavController(view);
     }
 
